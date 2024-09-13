@@ -20,7 +20,7 @@ def get_max_cosine_similarity(query):
                 similarities.append(similarity)
         magnitude = np.linalg.norm(similarities)
         max_similarities.append(magnitude)
-        
+
     output_df = pd.DataFrame({
         'Name': vectorized_df['Club Name'],
         'MaximumSimilarityScore': max_similarities
@@ -28,10 +28,10 @@ def get_max_cosine_similarity(query):
 
     # Filter out rows with a similarity score of 0
     output_df = output_df[output_df['MaximumSimilarityScore'] > 0]
-    
+
     # Sort the DataFrame by MaximumSimilarityScore in descending order
     output_df = output_df.sort_values(by='MaximumSimilarityScore', ascending=False)
-    
+
     return output_df['Name']
 
 
@@ -52,11 +52,11 @@ def get_min_levenshtein_distance(query):
 
                 if query.lower() in text.lower():
                     contains = True
-                
+
         min_distance = min(distances) if distances else np.inf
         min_distances.append(min_distance)
         contains_query.append(contains)
-        
+
     output_df = pd.DataFrame({
         'Name': vectorized_df['Name'],
         'MinimumDistanceScore': min_distances,
@@ -64,9 +64,9 @@ def get_min_levenshtein_distance(query):
     })
     # Filter out rows with an infinite distance (indicating no match at all)
     #output_df = output_df[(output_df['ContainsQuery'] == True) | ((output_df['MinimumDistanceScore'] != np.inf) & (output_df['MinimumDistanceScore'] < 0))]
-    
+
     output_df = output_df[(output_df['ContainsQuery'] == True)]
-    
+
     # Sort the DataFrame by MinimumDistanceScore in ascending order (smaller distance means more similar)
     output_df = output_df.sort_values(by='MinimumDistanceScore', ascending=True)
     if rig and len(output_df['Name'])!=0:
@@ -76,6 +76,7 @@ def get_min_levenshtein_distance(query):
             top_row = pd.DataFrame([
                 {'Name': 'Web Development Club', 'MinimumDistanceScore': 0, 'ContainsQuery': True}
             ])
+            top_row.index = [1]
         elif 'Web Development Club' in output_df['Name'].tolist():
             top_row = pd.DataFrame([
                 {'Name': 'Machine Learning and Computer Science Club', 'MinimumDistanceScore': 0, 'ContainsQuery': True}
