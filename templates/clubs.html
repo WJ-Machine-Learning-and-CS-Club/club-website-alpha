@@ -31,29 +31,58 @@
       z-index: 1000;
     }
 </style>
+
 <body>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <!--- COPIED BOOTSTRAP NAVBAR CODE -->
+  <nav class="navbar navbar-expand-md navbar-dark bg-dark">
     <div class="container-fluid">
-      <a href="{{ url_for('index') }}">
-        <img src="https://s3-us-west-2.amazonaws.com/sportshub2-uploads-prod/files/sites/292/2017/07/14175618/17673.png"
-        style="width:50px; height: 42px;">
-      </a>
-      <a class="navbar-brand" href="#">WJ Clubs</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+      <!---This is the image -->
+      <a href="{{ url_for('index') }}"> </a>
+      <img src="https://s3-us-west-2.amazonaws.com/sportshub2-uploads-prod/files/sites/292/2017/07/14175618/17673.png"
+        style="width:50px; height: 42px; margin-right: 10px;">
+      <!-- This is the title -->
+      <a class="navbar-brand" href="{{ url_for('index') }}">WJ Clubs</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <!-- This is the list of tabs -->
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <!-- This is the home tab -->
           <li class="nav-item">
-            <a class="nav-link" aria-current="page" href="{{ url_for('index') }}">Back to Home</a>
+            <a class="nav-link" aria-current="page" href="{{ url_for('index') }}">Home</a>
           </li>
-          <div class="dropdown">
-            <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
-              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              Categories
-            </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+          <!-- This is the second tab -->
+          <li class="nav-item">
+            <a target="_blank" class="nav-link" href="https://www.montgomeryschoolsmd.org/schools/wjhs/">WJ Main
+              Page</a>
+          </li>
+          <!-- Start a club navbar item -->
+          <li class="nav-item">
+            <a target="_blank" class="nav-link"
+              href="https://www.montgomeryschoolsmd.org/schools/wjhs/students/">Start
+              a Club!</a>
+          </li>
+          <!-- Email list navbar item -->
+          <li class="nav-item">
+            <a target="_blank" class="nav-link"
+              href="https://www.montgomeryschoolsmd.org/schools/wjhs/staff/staff-directory/?processlevel=04424">Staff
+              Email List</a>
+          </li>
+          <!-- Booster club link navbar item -->
+          <li class="nav-item">
+            <a target="_blank" class="nav-link" href="https://wjboosterclub.org/">Booster Club</a>
+          </li>
+          <!-- Begin dropdown -->
+           <li class="nav-item">
+            <div class="dropdown">
+              <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Categories
+              </button>
+              <!-- Contents in dropdown -->
+              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                 <a class="dropdown-item" href="#" onclick="redirectToCategory('')">All Clubs</a>
                 <a class="dropdown-item" href="#" onclick="redirectToCategory('Interest')">Interest</a>
                 <a class="dropdown-item" href="#" onclick="redirectToCategory('Competitive')">Competitive</a>
@@ -66,17 +95,21 @@
                 <a class="dropdown-item" href="#" onclick="redirectToCategory('Academic')">Academic</a>
                 <a class="dropdown-item" href="#" onclick="redirectToCategory('STEM')">STEM</a>
               </div>
-          </div>
+            </div>
+            </div>
+          </li>
         </ul>
       </div>
     </div>
+
   </nav>
+          <!-- End dropdown -->
 
   <center>
-    <!--<h1> Try our search feature to find clubs faster! </h1> 
-    <h5> You can also ask our Club Bot to help you find the right club for you.<br> Just write your prompt in the search bar. </h5> 
+    <!--<h1> Try our search feature to find clubs faster! </h1>
+    <h5> You can also ask our Club Bot to help you find the right club for you.<br> Just write your prompt in the search bar. </h5>
   -->
-  <h1> All Clubs </h1> 
+  <h1> All Clubs </h1>
     <!-- Imported button -->
     <div class="search" style="margin-top:25px;">
         <div class="search-box">
@@ -102,10 +135,18 @@
   </center>
   <script>
     function performSearch() {
-        var query = document.getElementById('query').value;
-        if (query) {
-            window.location.href = `/clubslist/${query}`;
-        }
+      event.preventDefault();
+      var query = document.getElementById('query').value;
+
+      // Remove special characters
+      query = query.replace(/[^a-zA-Z0-9 ]/g, '');
+
+      // Check if the string is empty or just spaces
+      if (query.trim() === '') {
+        window.location.href = '/clubslist';
+      } else {
+        window.location.href = `/clubslist/${query}`;
+      }
     }
 
     document.getElementById('search-button').addEventListener('click', performSearch);
@@ -116,7 +157,7 @@
         performSearch();
       }
     });
-    
+
     document.getElementById('search').addEventListener('submit', function(event) {
         event.preventDefault();
         var name = document.getElementById('name').value;
@@ -135,7 +176,7 @@
   <div class="row">
     {% endif %}
     <div class="col-md-4 mb-3">
-      <div class="card h-100 shadow-lg shadow p-3" style="background-color:#ccd6d2; border-width: 2px; border-color: lightslategrey;"> 
+      <div class="card h-100 shadow-lg shadow p-3" style="background-color:#ccd6d2; border-width: 2px; border-color: lightslategrey;">
         <div class="card-img-wrapper">
           <img src="{{ url_for('static', filename=club['Image Path']) }}" style="height:auto;" class="card-img-top border border-dark" alt="{{ club['Name'] }}">
         </div>
@@ -156,7 +197,7 @@
 
   <footer class="footer d-block mt-auto">
     <center><span>All clubs/organizations are inclusive of all students regardless of sex or gender identity. Website
-        created and maintained by Walter Johnson Web Development Club.</span></center>
+        created and maintained by Walter Johnson Web Development Club & AI Club.</span></center>
   </footer>
   <script>
     function redirectToCategory(category) {
