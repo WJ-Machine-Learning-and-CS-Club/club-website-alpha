@@ -1,7 +1,7 @@
 from flask import Flask
 import csv
 from flask import render_template
-import cosineSim
+#import cosineSim
 import regular_search
 import random
 
@@ -9,7 +9,7 @@ app = Flask(__name__)
 
 def generate_html(csv_file, clubsToDisplay=None):
     clubs = []
-    
+
     with open(csv_file, 'r') as file:
         reader = csv.DictReader(file)
         rows = list(reader)
@@ -39,7 +39,7 @@ def clubslist():
     clubs, total_clubs, num_clubs = generate_html('static/data/clubs_info.csv')
     return render_template('clubs.html', clubs=clubs, total_clubs=total_clubs, num_clubs=num_clubs)
 
-    
+
 @app.route('/clubslist/<user_query>')
 def clubslistCustom(user_query):
     club_list = regular_search.get_min_levenshtein_distance(user_query).index
