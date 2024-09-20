@@ -4,7 +4,7 @@ from flask import render_template
 #import cosineSim
 import regular_search
 import random
-
+#gokce's comment test
 app = Flask(__name__)
 
 def generate_html(csv_file, clubsToDisplay=None):
