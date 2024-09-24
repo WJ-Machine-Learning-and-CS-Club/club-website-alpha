@@ -5,6 +5,7 @@ from flask import render_template
 import regular_search
 import random
 #gokce's comment test
+#sussy balls
 app = Flask(__name__)
 
 def generate_html(csv_file, clubsToDisplay=None):
