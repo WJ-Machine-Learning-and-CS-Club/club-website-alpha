@@ -15,3 +15,8 @@ python -m flask run
 '''
 python app.py
 '''
+
+## Also: Recommend creating venv
+'''
+pip install -r requirements.txt
+'''
