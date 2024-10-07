@@ -33,7 +33,19 @@ def generate_html(csv_file, clubsToDisplay=None):
 @app.route('/')
 def index():
     return render_template('index.html')
-#test
+
+@app.route('/asduawhdisahfka124124125234124151sjfkjawhgfkjhasgfkjwagufysabwfgsjavbwkjfhsavkfwygwa21249817249816725981635789573628956239457589264555564892189763500000000024958167928538745981367349812675893617346819251374198276491284536asduawhdisahfka124124125234124151sjfkjawhgfkjhasgfkjwagufysabwfgsjavbwkjfhsavkfwygwa21249817249816725981635789573628956239457589264555564892189763500000000024958167928538745981367349812675893617346819251374198276491284536')
+def admin():
+    return render_template('admin.html')
+# Route for handling the button click
+@app.route('/asduawhdisahfka124124125234124151sjfkjawhgfkjhasgfkjwagufysabwfgsjavbwkjfhsavkfwygwa21249817249816725981635789573628956239457589264555564892189763500000000024958167928538745981367349812675893617346819251374198276491284536asduawhdisahfka124124125234124151sjfkjawhgfkjhasgfkjwagufysabwfgsjavbwkjfhsavkfwygwa21249817249816725981635789573628956239457589264555564892189763500000000024958167928538745981367349812675893617346819251374198276491284536', methods=['POST'])
+def call_function():
+    # Call the Python function here
+    result = adminFunction()
+    return result
+# Define the Python function to be called
+def adminFunction():
+    return "You clicked the admin button!"
 
 @app.route('/clubslist')
 def clubslist():
