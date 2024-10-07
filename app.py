@@ -33,7 +33,7 @@ def generate_html(csv_file, clubsToDisplay=None):
 @app.route('/')
 def index():
     return render_template('index.html')
-
+#test
 
 @app.route('/clubslist')
 def clubslist():
