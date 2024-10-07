@@ -167,33 +167,34 @@
 </script>
 
 <!-- This block spawns in all cards -->
-  <div class="container-fluid container-custom" style="margin-top:50px;">
-    {% for club in clubs %}
-    {% if loop.index0 % 3 == 0 %}
-    {% if loop.index0 > 0 %}
-  </div>
-  {% endif %}
+<div class="container-fluid container-custom" style="margin-top:50px;">
+  {% set counter = 0 %}
   <div class="row">
-    {% endif %}
-    <div class="col-md-4 mb-3">
-      <div class="card h-100 shadow-lg shadow p-3" style="background-color:#ccd6d2; border-width: 2px; border-color: lightslategrey;">
-        <div class="card-img-wrapper">
-          <img src="{{ url_for('static', filename=club['Image Path']) }}" style="height:auto;" class="card-img-top border border-dark" alt="{{ club['Name'] }}">
-        </div>
-        <div class="card-body">
-          <h5 class="card-title">{{ club['Name'] }}</h5>
-          <p class="card-text">{{ club['Description'] }}</p>
-          <p class="card-text"><small class="text-muted">{{ club['Meeting Time'] }} in {{ club['Location'] }}</small>
-          </p>
-          <p class="card-text"><small class="text-muted">{{ club['Contact'] }}</small></p>
+  {% for club in clubs %}
+    {% if club['Sponsor Replied']== "True" and club['Added to Website'] == "True" %}
+      <div class="col-md-4 mb-3">
+        <div class="card h-100 shadow-lg shadow p-3" style="background-color:#ccd6d2; border-width: 2px; border-color: lightslategrey;">
+          <div class="card-img-wrapper">
+            <img src="{{ url_for('static', filename=club['Image Path']) }}" style="height:auto;" class="card-img-top border border-dark" alt="{{ club['Club Name'] }}">
+          </div>
+          <div class="card-body">
+            <h5 class="card-title">{{ club['Club Name'] }}</h5>
+            <p class="card-text">{{ club['Purpose'] }}</p>
+            <p class="card-text"><small class="text-muted">{{ club['Select all the days of the week that your club meets'] }} during {{ club['When does your club meet?'] }} in {{ club['Club Meeting Location'] }}</small></p>
+            <p class="card-text"><small class="text-muted">{{ club['Social Media Handles (optional)'] }}</small></p>
+          </div>
         </div>
       </div>
-    </div>
-    {% endfor %}
-  </div>
-  </div>
+      {% set counter = counter + 1 %}
+      {% if counter % 3 == 0 %}
+        </div> <!-- Close row after 3 cards -->
+        <div class="row"> <!-- Open a new row -->
+      {% endif %}
+    {% endif %}
+  {% endfor %}
+  </div> <!-- Close the last row -->
+</div>
 <!-- end block -->
-
 
   <footer class="footer d-block mt-auto">
     <center><span>All clubs/organizations are inclusive of all students regardless of sex or gender identity. Website

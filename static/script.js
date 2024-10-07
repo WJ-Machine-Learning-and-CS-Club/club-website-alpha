@@ -22,7 +22,7 @@ $('#prevbut').bind('click', function(e) {
   }
   //searching
   const club_titles = [];
-  const club_images = ["static/images/latinDance.jpg", "static/images/ski.jpg", "static/images/turkish.jpg", "static/images/untitled.jpg"];
+  //const club_images = ["static/images/Robotics_Club.jpg", "static/images/ski.jpg", "static/images/turkish.jpg", "static/images/untitled.jpg"];
   
   function on_search() {
   
