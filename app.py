@@ -1,6 +1,5 @@
-from flask import Flask
+from flask import Flask, render_template, redirect, url_for
 import csv
-from flask import render_template
 #import cosineSim
 import regular_search
 import random
@@ -103,6 +102,11 @@ def download_featured_images():
 def upload_featured_csv(file_path):
     image_upload.preprocess_file(file_path)
     return render_template('index.html')
+
+@app.errorhandler(404)
+def page_not_found(e):
+    # Redirect to homepage or render a custom page
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     #app.run(host='0.0.0.0', port=8000)
