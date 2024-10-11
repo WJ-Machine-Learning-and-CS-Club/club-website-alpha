@@ -2,6 +2,7 @@ import os
 import requests
 import pandas as pd
 import shutil
+import re
 
 # Assuming the local static folder where images are stored
 local_static_folder = "static/images/"
@@ -13,11 +14,14 @@ base_url = "https://raw.githubusercontent.com/WJ-Machine-Learning-and-CS-Club/te
 extensions = ['.jpg', '.png', '.jpeg', '.webp']
 default_image = f"images/unknown.png"#f"{base_url}portrait_placeholder.png"
 default_img = "unknown.png"
+featured_header="Featured "
 
 # Function to check if the file exists locally
 def check_local_file(club_name):
     print("club_name: ", club_name)
+    club_name=re.sub(r'[^A-Za-z0-9\s]', '', club_name)
     club_name_underscored = club_name.replace(" ", "_")
+    # SOmething to remove special characters
     print("Passing last fail point?")
     for ext in extensions:
         local_path = os.path.join(local_static_folder, f"{club_name_underscored}{ext}")
@@ -26,6 +30,7 @@ def check_local_file(club_name):
     return None
 
 def check_github_file(club_name):
+    club_name=re.sub(r'[^A-Za-z0-9\s]', '', club_name)
     club_name_underscored = club_name.replace(" ", "_")
 
     # Iterate over extensions
@@ -101,6 +106,19 @@ def find_image(club_name):
     # Fallback to default image
     return default_image
 
+def find_image_featured(club_name):
+    club_name=featured_header+club_name
+    print("LOOK HERE:"+club_name)
+    # Check GitHub bc prob small amount of files
+    github_file = check_github_file(club_name)
+    if github_file:
+        return github_file
+
+    if not (os.path.exists(default_image)):
+        getDefaultFile()
+    # Fallback to default image
+    return default_image
+
 def download_images(input_file_path):
     # Load your CSV and apply the function to find images
     df = pd.read_csv(input_file_path)
@@ -112,9 +130,25 @@ def download_images(input_file_path):
 
     print("Uploading Process Complete")
 
+# Sample csv https://docs.google.com/spreadsheets/d/1O1HgusQAGpD4NWDSuLeK833E8LxUjmtTyqkWX23vshQ/edit?gid=0#gid=0
+def download_images_featured(input_file_path):
+    # Load your CSV and apply the function to find images
+    df = pd.read_csv(input_file_path)
+    df=df[df['Club Name'].notna()]
+    df['Image Path'] = df['Club Name'].apply(find_image_featured)#find_image edit this function to  work for other stuff. )
+
+    # Save the updated CSV
+    df.to_csv(local_data_folder+"featured_clubs_information.csv", index=False)
+
+    print("Uploading Carousel Pictures Process Complete")
+
 def preprocess_file(new_file_path):
     df = pd.read_csv(new_file_path)
     df.to_csv(local_data_folder+"clubs_information.csv", index=False)
+
+def preprocess_file_featured(new_file_path):
+    df = pd.read_csv(new_file_path)
+    df.to_csv(local_data_folder+"featured_clubs_information.csv", index=False)
 
 
 def delete_all_files(directory):

@@ -9,6 +9,10 @@ body {
   background: linear-gradient(100deg,  #8ebda6 0%, #277652 100%);
   background-attachment: fixed;
 }
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
 h1 {
   font-size: 100px;
   font-weight: bold;
@@ -46,6 +50,13 @@ h2 {
   background-color: #2d634a;
 }
 
+.carousel-left-move-in {
+  animation: leftCarouselButton 1s ease-in forwards;
+}
+.carousel-right-move-in {
+  animation: rightCarouselButton 1s ease-in forwards;
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -58,6 +69,30 @@ h2 {
   }
 }
 
+@keyframes leftCarouselButton {
+  0% {
+    transform: translateX(-50vw);
+  }
+  85% {
+    transform:translateX(5vw);
+  }
+  100% {
+    transform:translateX(0vw);
+  }
+}
+
+@keyframes rightCarouselButton {
+  0% {
+    transform: translateX(50vw);
+  }
+  85% {
+    transform:translateX(-5vw);
+  }
+  100% {
+    transform:translateX(0vw);
+  }
+}
+
 #allclubsbutton {
   /* margin-top: 5vh; */
   background-color: #2d634a;
@@ -66,10 +101,11 @@ h2 {
 
 .footer {
   position: fixed;
+  z-index: 1000;
   left: 0;
   bottom: 0;
   width: 100%;
-  height: 5%;
+  height:7%;
   background-color: #31353a;
   color: #c1bebe;
   padding: 1vh 1vw 1vw 1vw;
@@ -347,4 +383,35 @@ body {
       font-weight: bolder;
     }
   }
+}
+
+
+.seperation-bar {
+  background-color: black;
+  height:20px;
+  width:200px;
+}
+
+.carousel-control-prev, .carousel-control-next {
+  top: 10%; /* vertical positioning for the arrows*/
+}
+
+.carousel-control-prev-icon, .carousel-control-next-icon {
+  background-color: rgba(0, 0, 0, 0.5); /* Make arrows more visible with a background */
+  border-radius: 20%;
+  width: 4rem; 
+  height: 4rem;
+}
+
+.carousel-item img {
+  width: 40vw; /* width of image within its container */
+  height: 50vh; /* height of image within its container */
+  object-fit: cover; /* making the image fit into container */
+  border-radius: 10%;
+}
+.dark-bg {
+  padding: 0px 0px 0px 0px;
+  width: 20%;
+  background-color: rgba(107, 102, 102, 0.5);
+  border-radius: 10%;
 }

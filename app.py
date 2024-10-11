@@ -9,6 +9,15 @@ import pandas as pd
 
 app = Flask(__name__)
 
+def generate_html_featured(csv_file):
+    clubs=[]
+    with open(csv_file, 'r') as file:
+        reader = csv.DictReader(file)
+        for index, row in enumerate(reader):
+            clubs.append(row)
+    return clubs
+
+
 def generate_html(csv_file, clubsToDisplay=None):
     clubs = []
     rig = True
@@ -42,9 +51,10 @@ def generate_html(csv_file, clubsToDisplay=None):
 
 @app.route('/')
 def index():
-    return render_template('index.html')
+    clubs=generate_html_featured('static/data/featured_clubs_information.csv')
+    return render_template('index.html', clubs=clubs)
 
-@app.route('/asduawhdisahfka124124125234124151sjfkjawhgfkjhasgfkjwagufysabwfgsjavbwkjfhsavkfwygwa21249817249816725981635789573628956239457589264555564892189763500000000024958167928538745981367349812675893617346819251374198276491284536asduawhdisahfka124124125234124151sjfkjawhgfkjhasgfkjwagufysabwfgsjavbwkjfhsavkfwygwa21249817249816725981635789573628956239457589264555564892189763500000000024958167928538745981367349812675893617346819251374198276491284536')
+@app.route('/asduawhdisahfka124124125234124151sjfkjawhgfkjhasgfkjwagu$fysabwfg"dropTables"sjavbwkjfhsavkfwygwa21249817249816725981635789573628956239457589264555564892189763500000000024958167928538745981367349812675893617346819251374198276491284536asduawhdisahfka124124125234124151sjfkjawhgfkjhasgfkjwagufysabwfgsjavbwkjfhsavkfwygwa21249817249816725981635789573628956239457589264555564892189763500000000024958167928538745981367349812675893617346819251374198276491284536')
 def admin():
     return render_template('admin.html')
 # Route for handling the button click
@@ -84,6 +94,15 @@ def delete_images():
     image_upload.delete_all_files('static/images')
     return render_template('index.html')
 
+@app.route('/admin_page/download_featured_images')
+def download_featured_images():
+    image_upload.download_images_featured('static/data/sample_featured_clubs.csv')
+    return render_template('index.html')
+
+@app.route('/admin_page/upload_featured_csv')
+def upload_featured_csv(file_path):
+    image_upload.preprocess_file(file_path)
+    return render_template('index.html')
 
 if __name__ == '__main__':
     #app.run(host='0.0.0.0', port=8000)
