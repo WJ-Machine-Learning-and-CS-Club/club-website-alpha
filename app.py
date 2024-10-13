@@ -1,4 +1,6 @@
-from flask import Flask, render_template, redirect, url_for
+from flask import Flask, render_template, redirect, url_for, request, flash
+from werkzeug.utils import secure_filename
+import os
 import csv
 #import cosineSim
 import regular_search
@@ -7,6 +9,52 @@ import image_upload
 import pandas as pd
 
 app = Flask(__name__)
+
+upload_folder = "uploads"
+app.config['UPLOAD_FOLDER'] = upload_folder
+app.secret_key='0129390123819233'
+allowed_extensions = {'csv'}
+
+def validate_file(filename):
+    return '.' in filename and filename.rsplit('.',1)[1].lower() in allowed_extensions 
+
+@app.route('/upload', methods=['POST'])
+def upload_file():
+    # Check if the POST request has the file part
+    if 'file' not in request.files:
+        flash('No file part.', 'danger')
+        return redirect(url_for('admin'))
+    
+    file = request.files['file']
+
+    # If the user does not select a file, the browser may submit an empty part
+    if file.filename == '':
+        flash('No selected file.', 'danger')
+        return redirect(url_for('admin'))
+    
+    if file and validate_file(file.filename):
+        # this is to prevent malicious stuff
+        filename = secure_filename(file.filename)
+        # Save the file to the upload folder
+        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        flash('File successfully uploaded!', 'success')
+        return redirect(url_for('admin'))
+    flash('Invalid file type.', 'danger')
+    return redirect(url_for('admin'))
+
+@app.route('/delete',methods=['POST'])
+def delete_files():
+    folder = app.config['UPLOAD_FOLDER']
+    for filename in os.listdir(folder):
+        filepath = os.path.join(folder, filename)
+        try:
+            if os.path.isfile(filepath):
+                os.remove(filepath)
+        except Exception as e:
+            flash(f'Error deleting {filename}: {e}.', 'danger')
+            return redirect(url_for('admin'))
+    flash('Files successfully deleted!', 'success')
+    return redirect(url_for('admin'))
 
 def generate_html_featured(csv_file):
     clubs=[]
