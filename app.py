@@ -2,17 +2,19 @@ from flask import Flask, render_template, redirect, url_for, request, flash
 from werkzeug.utils import secure_filename
 import os
 import csv
-#import cosineSim
+import cosineSim
 import regular_search
 import random
 import image_upload
+import dotenv
+import secrets
 import pandas as pd
 
 app = Flask(__name__)
 
 upload_folder = "uploads"
 app.config['UPLOAD_FOLDER'] = upload_folder
-app.secret_key='0129390123819233'
+app.secret_key = secrets.token_hex(32)
 allowed_extensions = {'csv'}
 
 def validate_file(filename):
@@ -36,8 +38,22 @@ def upload_file():
         # this is to prevent malicious stuff
         filename = secure_filename(file.filename)
         # Save the file to the upload folder
-        file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+        filepath=os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
         flash('File successfully uploaded!', 'success')
+
+        action = request.args.get("action")
+
+        if action == 'all-clubs':
+            image_upload.preprocess_file(filepath)
+            image_upload.download_images('static/data/clubs_information.csv')
+        elif action == 'featured-clubs':
+            image_upload.preprocess_file_featured(filepath)
+            image_upload.download_images_featured('static/data/featured_clubs_information.csv')
+        else:
+            flash('Invalid action.', 'danger')
+
+        
         return redirect(url_for('admin'))
     flash('Invalid file type.', 'danger')
     return redirect(url_for('admin'))
