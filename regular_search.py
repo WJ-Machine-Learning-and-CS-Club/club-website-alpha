@@ -3,11 +3,12 @@ import numpy as np
 import Levenshtein as lev
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import config
 
-
+ref_club_file_path = config.REFERENCE_CLUBS_INFO
 
 rig=True
-vectorized_df = pd.read_csv('static/data/clubs_information.csv')
+vectorized_df = pd.read_csv(ref_club_file_path)
 
 def get_max_cosine_similarity(query):
     query_vector = query.toarray()

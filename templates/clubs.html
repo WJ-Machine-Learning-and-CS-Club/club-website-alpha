@@ -115,7 +115,8 @@
     <div class="search" style="margin-top:25px;">
         <div class="search-box">
           <div class="search-field">
-            <input id="query" placeholder="Search..." class="input" type="text">
+            <!-- <input id="query" placeholder="Search..." class="input" type="text" value="{{ query or '' }}" autocomplete="off"> -->
+            <input id="query" placeholder="Search..." class="input" type="text" autocomplete="off">
             <div class="search-box-icon">
               <button class="btn-icon-content" id="search-button">
                 <i class="search-icon">
@@ -136,16 +137,18 @@
   </center>
   <script>
     function performSearch() {
-      event.preventDefault();
+      //event.preventDefault();
       var query = document.getElementById('query').value;
-
+      sessionStorage.setItem('cursorPosition', document.getElementById('query').selectionStart);
+      sessionStorage.setItem('queryInformation', query);
       // Remove special characters
       query = query.replace(/[^a-zA-Z0-9 ]/g, '');
-
+      
       // Check if the string is empty or just spaces
       if (query.trim() === '') {
         window.location.href = '/clubslist';
       } else {
+        console.log(query)
         window.location.href = `/clubslist/${query}`;
       }
     }
@@ -159,12 +162,51 @@
       }
     });
 
-    document.getElementById('search').addEventListener('submit', function(event) {
+    /*document.getElementById('search').addEventListener('submit', function(event) {
         event.preventDefault();
         var name = document.getElementById('name').value;
         var email = document.getElementById('email').value;
         document.getElementById('output').innerText = `Name: ${name}, Email: ${email}`;
+    });*/
+
+    //adding debounce or like autosearch func
+    function debounce(func, delay) {
+    let timer;
+    return function (...args) {
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+            func.apply(this, args); // Call the performSearch function after the delay
+        }, delay);
+    };
+}
+// Debounced search with a 2-second delay
+const debouncedSearch = debounce(performSearch, 500);
+// Attach the debounced function to the input event
+window.addEventListener('DOMContentLoaded', () => {
+    const queryInput = document.getElementById('query');
+    queryInput.focus();
+    const savedPosition = sessionStorage.getItem('cursorPosition');
+    const savedQuery = sessionStorage.getItem('queryInformation');
+    if (savedQuery !== null) {
+        queryInput.value = savedQuery; // Load the saved query into the input field
+        sessionStorage.removeItem('queryInformation');
+    }
+    if (savedPosition !== null) {
+        queryInput.setSelectionRange(savedPosition, savedPosition);
+        sessionStorage.removeItem('cursorPosition'); // Clear after restoring
+    }
+    
+    // Debounced search when typing
+    queryInput.addEventListener('input', debouncedSearch);
+
+    // Immediate search when pressing "Enter"
+    queryInput.addEventListener('keypress', function(event) {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            performSearch();
+        }
     });
+});
 </script>
 
 <!-- This block spawns in all cards -->

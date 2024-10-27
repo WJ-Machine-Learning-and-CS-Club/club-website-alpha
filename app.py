@@ -11,28 +11,17 @@ import image_upload
 import dotenv
 import secrets
 import pandas as pd
+import config  # Import the config module
+from user import User  # Import the User class
 
 app = Flask(__name__)
+app.config.from_object(config)  # Load all configurations from config.py
+allowed_extensions=config.ALLOWED_EXTENSIONS
 
-upload_folder = "uploads"
-app.config['UPLOAD_FOLDER'] = upload_folder
-allowed_extensions = {'csv'}
-
-app.secret_key = secrets.token_hex(32)
-
+# Initialize LoginManager
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
-
-class User(UserMixin):
-    def __init__(self, id, username, password):
-        self.id = id
-        self.username = username
-        self.password_hash = generate_password_hash(password)
-
-    def verify_password(self, password):
-        return check_password_hash(self.password_hash, password)
-    
 
 admin_user_test = User(1, "mrm", "wjclubs")
 
@@ -86,7 +75,7 @@ def upload_file():
         # this is to prevent malicious stuff
         filename = secure_filename(file.filename)
         # Save the file to the upload folder
-        filepath=os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        filepath=os.path.join(app.config['UPLOAD_FOLDER_DATA'], filename)
         file.save(filepath)
         flash('File successfully uploaded!', 'success')
 
@@ -94,10 +83,12 @@ def upload_file():
 
         if action == 'all-clubs':
             image_upload.preprocess_file(filepath)
-            image_upload.download_images('static/data/clubs_information.csv')
+            ref_club_file_path = app.config['REFERENCE_CLUBS_INFO']
+            image_upload.download_images(ref_club_file_path)
         elif action == 'featured-clubs':
             image_upload.preprocess_file_featured(filepath)
-            image_upload.download_images_featured('static/data/featured_clubs_information.csv')
+            ref_featured_club_file_path = app.config['REFERENCE_FEATURED_CLUBS_INFO']
+            image_upload.download_images_featured(ref_featured_club_file_path)
         else:
             flash('Invalid action.', 'danger')
 
@@ -109,15 +100,8 @@ def upload_file():
 @app.route('/delete',methods=['POST'])
 @login_required
 def delete_files():
-    folder = app.config['UPLOAD_FOLDER']
-    for filename in os.listdir(folder):
-        filepath = os.path.join(folder, filename)
-        try:
-            if os.path.isfile(filepath):
-                os.remove(filepath)
-        except Exception as e:
-            flash(f'Error deleting {filename}: {e}.', 'danger')
-            return redirect(url_for('admin'))
+    folder = app.config['UPLOAD_FOLDER_IMAGES']
+    image_upload.delete_all_files(os.path.join(folder))
     flash('Files successfully deleted!', 'success')
     return redirect(url_for('admin'))
 
@@ -163,7 +147,8 @@ def generate_html(csv_file, clubsToDisplay=None):
 
 @app.route('/')
 def index():
-    clubs=generate_html_featured('static/data/featured_clubs_information.csv')
+    ref_featured_club_file_path = app.config['REFERENCE_FEATURED_CLUBS_INFO']
+    clubs=generate_html_featured(ref_featured_club_file_path)
     return render_template('index.html', clubs=clubs)
 
 @app.route('/admin')
@@ -174,40 +159,17 @@ def admin():
 
 @app.route('/clubslist')
 def clubslist():
-    clubs, total_clubs, num_clubs = generate_html('static/data/clubs_information.csv')
+    ref_club_file_path = app.config['REFERENCE_CLUBS_INFO']
+    clubs, total_clubs, num_clubs = generate_html(ref_club_file_path)
     return render_template('clubs.html', clubs=clubs, total_clubs=total_clubs, num_clubs=num_clubs)
 
 
 @app.route('/clubslist/<user_query>')
 def clubslistCustom(user_query):
     club_list = regular_search.get_min_levenshtein_distance(user_query).index
-    clubs, total_clubs, num_clubs = generate_html('static/data/clubs_information.csv', club_list)
+    ref_club_file_path = app.config['REFERENCE_CLUBS_INFO']
+    clubs, total_clubs, num_clubs = generate_html(ref_club_file_path, club_list)
     return render_template('clubs.html', clubs=clubs, total_clubs=total_clubs, num_clubs=num_clubs)
-
-@app.route('/admin_page/download_images')
-def download_images():
-    image_upload.download_images('static/data/club_info_2.csv')
-    return render_template('index.html')
-
-@app.route('/admin_page/upload_csv')
-def upload_csv(file_path):
-    image_upload.preprocess_file(file_path)
-    return render_template('index.html')
-
-@app.route('/admin_page/clear_images')
-def delete_images():
-    image_upload.delete_all_files('static/images')
-    return render_template('index.html')
-
-@app.route('/admin_page/download_featured_images')
-def download_featured_images():
-    image_upload.download_images_featured('static/data/sample_featured_clubs.csv')
-    return render_template('index.html')
-
-@app.route('/admin_page/upload_featured_csv')
-def upload_featured_csv(file_path):
-    image_upload.preprocess_file(file_path)
-    return render_template('index.html')
 
 @app.errorhandler(404)
 def page_not_found(e):
