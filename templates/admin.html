@@ -15,6 +15,7 @@
     <h2> WJ Clubs Admin Page </h2>
     <center>
         <a class="btn btn-primary border border-dark border-3 mt-5 mb-3" href="{{ url_for('index')}}">Back to Home</a>
+        <a class="btn btn-primary border border-dark border-3 mt-5 mb-3" href="{{ url_for('logout')}}">Log Out</a>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}

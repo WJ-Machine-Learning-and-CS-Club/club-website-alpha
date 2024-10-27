@@ -1,8 +1,10 @@
 from flask import Flask, render_template, redirect, url_for, request, flash
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import csv
-import cosineSim
+#import cosineSim
 import regular_search
 import random
 import image_upload
@@ -14,13 +16,59 @@ app = Flask(__name__)
 
 upload_folder = "uploads"
 app.config['UPLOAD_FOLDER'] = upload_folder
-app.secret_key = secrets.token_hex(32)
 allowed_extensions = {'csv'}
+
+app.secret_key = secrets.token_hex(32)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = "login"
+
+class User(UserMixin):
+    def __init__(self, id, username, password):
+        self.id = id
+        self.username = username
+        self.password_hash = generate_password_hash(password)
+
+    def verify_password(self, password):
+        return check_password_hash(self.password_hash, password)
+    
+
+admin_user_test = User(1, "mrm", "wjclubs")
+
+@login_manager.user_loader
+def load_user(user_id):
+    if user_id == "1":
+        return admin_user_test
+    else:
+        return None
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        
+        # Check if credentials match admin user
+        if username == admin_user_test.username and admin_user_test.verify_password(password):
+            login_user(admin_user_test)
+            return redirect(url_for('admin'))
+        
+        flash("Invalid username or password", "danger")
+    
+    return render_template('login.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
 
 def validate_file(filename):
     return '.' in filename and filename.rsplit('.',1)[1].lower() in allowed_extensions 
 
 @app.route('/upload', methods=['POST'])
+@login_required
 def upload_file():
     # Check if the POST request has the file part
     if 'file' not in request.files:
@@ -59,6 +107,7 @@ def upload_file():
     return redirect(url_for('admin'))
 
 @app.route('/delete',methods=['POST'])
+@login_required
 def delete_files():
     folder = app.config['UPLOAD_FOLDER']
     for filename in os.listdir(folder):
@@ -117,18 +166,11 @@ def index():
     clubs=generate_html_featured('static/data/featured_clubs_information.csv')
     return render_template('index.html', clubs=clubs)
 
-@app.route('/asduawhdisahfka124124125234124151sjfkjawhgfkjhasgfkjwagu$fysabwfg"dropTables"sjavbwkjfhsavkfwygwa21249817249816725981635789573628956239457589264555564892189763500000000024958167928538745981367349812675893617346819251374198276491284536asduawhdisahfka124124125234124151sjfkjawhgfkjhasgfkjwagufysabwfgsjavbwkjfhsavkfwygwa21249817249816725981635789573628956239457589264555564892189763500000000024958167928538745981367349812675893617346819251374198276491284536')
+@app.route('/admin')
+@login_required
 def admin():
     return render_template('admin.html')
 # Route for handling the button click
-@app.route('/asduawhdisahfka124124125234124151sjfkjawhgfkjhasgfkjwagufysabwfgsjavbwkjfhsavkfwygwa21249817249816725981635789573628956239457589264555564892189763500000000024958167928538745981367349812675893617346819251374198276491284536asduawhdisahfka124124125234124151sjfkjawhgfkjhasgfkjwagufysabwfgsjavbwkjfhsavkfwygwa21249817249816725981635789573628956239457589264555564892189763500000000024958167928538745981367349812675893617346819251374198276491284536', methods=['POST'])
-def call_function():
-    # Call the Python function here
-    result = adminFunction()
-    return result
-# Define the Python function to be called
-def adminFunction():
-    return "You clicked the admin button!"
 
 @app.route('/clubslist')
 def clubslist():
