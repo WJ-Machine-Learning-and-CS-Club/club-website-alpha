@@ -13,10 +13,12 @@ import secrets
 import pandas as pd
 import config  # Import the config module
 from user import User  # Import the User class
+from datetime import timedelta
 
 app = Flask(__name__)
 app.config.from_object(config)  # Load all configurations from config.py
 allowed_extensions=config.ALLOWED_EXTENSIONS
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 
 # Initialize LoginManager
 login_manager = LoginManager()
@@ -34,13 +36,17 @@ def load_user(user_id):
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    if current_user.is_authenticated:
+        return redirect(url_for('admin')) 
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
+        remember_me = request.form.get('remember_me') == 'on'
         
         # Check if credentials match admin user
         if username == admin_user_test.username and admin_user_test.verify_password(password):
-            login_user(admin_user_test)
+            #login_user(admin_user_test)
+            login_user(admin_user_test, remember=remember_me)
             return redirect(url_for('admin'))
         
         flash("Invalid username or password", "danger")
@@ -51,7 +57,7 @@ def login():
 @login_required
 def logout():
     logout_user()
-    return redirect(url_for('index'))
+    return redirect(url_for('login'))
 
 def validate_file(filename):
     return '.' in filename and filename.rsplit('.',1)[1].lower() in allowed_extensions 
