@@ -16,5 +16,5 @@ extensions = ['.jpg', '.png', '.jpeg', '.webp', '.svg']
 default_image=os.path.join('images', 'unknown.png')
 default_img = "unknown.png"
 featured_header="Featured "
-expected_columns_allclubs = ["Club Name", "Purpose", "Meeting Days", "Meeting Times", "Meeting Location", "Social Media Handles"]
+expected_columns_allclubs = ["Club Name", "Purpose", "Meeting Days", "Meeting Times", "Meeting Location", "Club Meeting Frequency", "Social Media Handles"]
 expected_columns_featured = ["Club Name", "Description"]
