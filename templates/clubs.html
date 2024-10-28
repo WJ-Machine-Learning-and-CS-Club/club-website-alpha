@@ -223,8 +223,10 @@ window.addEventListener('DOMContentLoaded', () => {
           <div class="card-body">
             <h5 class="card-title">{{ club['Club Name'] }}</h5>
             <p class="card-text">{{ club['Purpose'] }}</p>
-            <p class="card-text"><small class="text-muted">{{ club['Select all the days of the week that your club meets'] }} during {{ club['When does your club meet?'] }} in {{ club['Club Meeting Location'] }}</small></p>
-            <p class="card-text"><small class="text-muted">{{ club['Social Media Handles (optional)'] }}</small></p>
+            <!-- <p class="card-text"><small class="text-muted">{{ club['Select all the days of the week that your club meets'] }} during {{ club['When does your club meet?'] }} in {{ club['Club Meeting Location'] }}</small></p>
+            <p class="card-text"><small class="text-muted">{{ club['Social Media Handles (optional)'] }}</small></p> -->
+            <p class="card-text"><small class="text-muted">{{ club['Meeting Days'] }} during {{ club['Meeting Times'] }} in {{ club['Meeting Location'] }}</small></p>
+            <p class="card-text"><small class="text-muted">{{ club['Social Media Handles'] }}</small></p>
           </div>
         </div>
       </div>

@@ -146,10 +146,12 @@ def download_images_featured(input_file_path):
 def preprocess_file(new_file_path):
     df = pd.read_csv(new_file_path)
     df.to_csv(ref_club_file_path, index=False)
+    os.remove(new_file_path)
 
 def preprocess_file_featured(new_file_path):
     df = pd.read_csv(new_file_path)
     df.to_csv(ref_featured_club_file_path, index=False)
+    os.remove(new_file_path)
 
 
 def delete_all_files(directory):
@@ -168,3 +170,21 @@ def delete_all_files(directory):
                 return f"Failed to delete {file_path}. Reason: {e}", 500
 
     return "All files deleted successfully", 200
+
+# Check File Validity
+def check_columns(file_path, expected_columns):
+    try:
+        df = pd.read_csv(file_path)
+    except FileNotFoundError:
+        return f"File '{file_path}' not found."
+    except pd.errors.EmptyDataError:
+        return "The file is empty."
+    except pd.errors.ParserError:
+        return "Error parsing file. Please check the file format."
+
+    missing_columns = [col for col in expected_columns if col not in df.columns]
+
+    if missing_columns:
+        return f"Missing columns: {', '.join(missing_columns)}"
+    else:
+        return True

@@ -8,7 +8,7 @@ import csv
 import regular_search
 import random
 import image_upload
-import dotenv
+#import dotenv
 import secrets
 import pandas as pd
 import config  # Import the config module
@@ -18,6 +18,8 @@ from datetime import timedelta
 app = Flask(__name__)
 app.config.from_object(config)  # Load all configurations from config.py
 allowed_extensions=config.ALLOWED_EXTENSIONS
+expected_columns_allclubs=config.expected_columns_allclubs
+expected_columns_featured=config.expected_columns_featured
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
 
 # Initialize LoginManager
@@ -86,12 +88,19 @@ def upload_file():
         flash('File successfully uploaded!', 'success')
 
         action = request.args.get("action")
-
         if action == 'all-clubs':
+            csv_check=image_upload.check_columns(filepath, expected_columns_allclubs)
+            if csv_check!=True:
+                flash(csv_check, 'danger')
+                return redirect(url_for('admin')) 
             image_upload.preprocess_file(filepath)
             ref_club_file_path = app.config['REFERENCE_CLUBS_INFO']
             image_upload.download_images(ref_club_file_path)
         elif action == 'featured-clubs':
+            csv_check=image_upload.check_columns(filepath, expected_columns_featured)
+            if csv_check!=True:
+                flash(csv_check, 'danger')
+                return redirect(url_for('admin')) 
             image_upload.preprocess_file_featured(filepath)
             ref_featured_club_file_path = app.config['REFERENCE_FEATURED_CLUBS_INFO']
             image_upload.download_images_featured(ref_featured_club_file_path)
@@ -152,6 +161,7 @@ def generate_html(csv_file, clubsToDisplay=None):
     return clubs, len(clubs), total_index
 
 @app.route('/')
+@app.route('/index')
 def index():
     ref_featured_club_file_path = app.config['REFERENCE_FEATURED_CLUBS_INFO']
     clubs=generate_html_featured(ref_featured_club_file_path)

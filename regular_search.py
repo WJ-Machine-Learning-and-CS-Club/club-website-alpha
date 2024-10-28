@@ -70,7 +70,8 @@ def get_min_levenshtein_distance(query):
     # Filter out rows with an infinite distance (indicating no match at all)
     #output_df = output_df[(output_df['ContainsQuery'] == True) | ((output_df['MinimumDistanceScore'] != np.inf) & (output_df['MinimumDistanceScore'] < 0))]
 
-    output_df = output_df[(output_df['ContainsQuery'] == True)]
+    filtered_df = output_df[(output_df['ContainsQuery'] == True)]
+    output_df=filtered_df
 
     # Sort the DataFrame by MinimumDistanceScore in ascending order (smaller distance means more similar)
     output_df = output_df.sort_values(by='MinimumDistanceScore', ascending=True)
