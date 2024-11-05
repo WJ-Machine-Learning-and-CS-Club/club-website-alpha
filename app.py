@@ -15,6 +15,8 @@ import config  # Import the config module
 from user import User  # Import the User class
 from datetime import timedelta
 
+# test
+
 app = Flask(__name__)
 app.config.from_object(config)  # Load all configurations from config.py
 allowed_extensions=config.ALLOWED_EXTENSIONS
