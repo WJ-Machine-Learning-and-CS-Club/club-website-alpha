@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, url_for, request, flash
+from flask import Flask, render_template, redirect, url_for, request, flash, jsonify
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -14,6 +14,7 @@ import pandas as pd
 import config  # Import the config module
 from user import User  # Import the User class
 from datetime import timedelta
+from openai import OpenAI
 
 # test
 
@@ -189,9 +190,39 @@ def clubslistCustom(user_query):
     clubs, total_clubs, num_clubs = generate_html(ref_club_file_path, club_list)
     return render_template('clubs.html', clubs=clubs, total_clubs=total_clubs, num_clubs=num_clubs)
 
-@app.route('/botSubmit')
+@app.route('/botSubmit', methods=['POST'])
 def botSubmit():
-    return "query: " + request.args.get('query')
+    api_key = ""
+    data = request.get_json()
+    if not data or 'history' not in data:
+        return jsonify({"error": "No chat history provided"}), 400
+    
+    club_names = pd.read_csv(app.config['REFERENCE_CLUBS_INFO'])["Club Name"].tolist()
+    club_guide = ", ".join(club_names)
+    history = data['history']
+    custom_prompt = {
+        "role": "system",
+        "content": (
+            f"""
+        You are WJClubsAI, a helpful assistant designed to answer questions about clubs, events, and general student activities. 
+        Here is a list of clubs to guide you: {club_guide}.
+        Respond in a concise and friendly tone, offering suggestions where appropriate, 
+        and do not respond to anything unrelated.
+        """
+        )
+    }
+    history.insert(0, custom_prompt)
+    try:
+        client = OpenAI(api_key=api_key)
+        response = client.chat.completions.create(
+            messages=history,
+            model="gpt-4o-mini",
+        )
+        generated_text = response.choices[0].message.content.strip()
+        return jsonify({"response": generated_text})
+    except Exception as e:
+        print(f"Error during OpenAI API call: {e}")
+        return jsonify({"error": "Unable to process your request."}), 500
 
 @app.errorhandler(404)
 def page_not_found(e):
