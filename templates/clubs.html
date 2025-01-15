@@ -198,6 +198,28 @@
         .bot-label {
           color: var(--input-text-color, #333333);
         }
+
+        .close-btn-custom {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          width: 30px;
+          height: 30px;
+          border: 2px solid var(--input-border-color, #808080);
+          background-color: var(--input-bg-color, #333333);
+          color: var(--input-text-color, #ffffff);
+          border-radius: 50%;
+          font-size: 1.2rem;
+          font-weight: bold;
+          line-height: 24px;
+          text-align: center;
+          cursor: pointer;
+          transition: all 0.3s ease;
+        }
+        .close-btn-custom:hover {
+          background-color: var(--input-border-hover-color, #999999);
+          color: var(--input-text-hover-color, #ffffff);
+        }
       </style>
 
 <div class="modal fade" id="popup" tabindex="-1" aria-labelledby="botModalLabel" aria-hidden="true">
@@ -205,7 +227,9 @@
     <div class="modal-content bot-modal-content">
       <div class="modal-header bot-modal-header">
         <h5 class="modal-title" id="botModalLabel">WJClubs AI</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <button type="button" class="close-btn-custom" data-bs-dismiss="modal" aria-label="Close">
+          &times;
+        </button>
       </div>
       <div class="modal-body bot-modal-body">
         <div id="chatLog" class="mb-3 bot-chat-log">
