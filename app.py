@@ -15,7 +15,7 @@ import config  # Import the config module
 from user import User  # Import the User class
 from datetime import timedelta
 
-# test2
+# hello
 
 app = Flask(__name__)
 app.config.from_object(config)  # Load all configurations from config.py
@@ -188,6 +188,10 @@ def clubslistCustom(user_query):
     ref_club_file_path = app.config['REFERENCE_CLUBS_INFO']
     clubs, total_clubs, num_clubs = generate_html(ref_club_file_path, club_list)
     return render_template('clubs.html', clubs=clubs, total_clubs=total_clubs, num_clubs=num_clubs)
+
+@app.route('/botSubmit')
+def botSubmit():
+    return "query: " + request.args.get('query')
 
 @app.errorhandler(404)
 def page_not_found(e):

@@ -131,7 +131,45 @@
           </div>
         </div>
       </div>
-      <h5 style="margin-top:10px; color: rgb(82, 86, 88)"> Showing {{ total_clubs }} out of {{ num_clubs }} clubs. </h5>
+      
+      <div class="container me-auto">
+        <div class="row justify-content-center mt-3">
+          <h5 style="margin-top:10px; color: rgb(82, 86, 88)"> Showing {{ total_clubs }} out of {{ num_clubs }} clubs. </h5>
+          <button class="btn btn-primary border border-dark ml-3" type="button" data-bs-target="#popup" data-bs-toggle="modal"->Talk to Bot</button>
+        </div>
+      </div>
+
+      <div class="modal fade" id="popup" tabindex="-1" aria-labelledby="botModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="botModalLabel">Chat</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+              <form id="botForm" onsubmit="handleBotSubmission(event)">
+                <div class="mb-3">
+                  <label for="userInput" class="form-label">WJClubs AI</label>
+                  <input type="text" class="form-control" id="userInput" placeholder="Ask WJClubsAI...">
+                </div>
+                <!-- <button type="submit" class="btn btn-primary">Enter</button> -->
+                <button class="btn btn-primary" type="submit">Enter</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script>
+        function handleBotSubmission(event) {
+          console.log("sending to bot");
+          event.preventDefault();
+          const uinput = document.getElementById('userInput').value;
+          const url = "{{url_for('botSubmit')}}?query="+encodeURIComponent(uinput);
+          window.location.href = url;
+        }
+      </script>
+      
+      
       <!-- <input class="importedInput" name="text" placeholder="Search..." type="search"> -->
     <!-- End imported button -->
   </center>
@@ -208,6 +246,9 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
+
+
+
 
 <!-- This block spawns in all cards -->
 <div class="container-fluid container-custom" style="margin-top:50px;">
