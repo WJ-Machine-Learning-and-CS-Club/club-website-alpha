@@ -38,8 +38,10 @@
     <div class="container-fluid">
       <!---This is the image -->
       <a href="{{ url_for('index') }}">
+          <!--@TODO the image is no longer there so can't be displayed... perhaps we stick the image into the same github instead?
       <img src="https://s3-us-west-2.amazonaws.com/sportshub2-uploads-prod/files/sites/292/2017/07/14175618/17673.png"
         style="width:50px; height: 42px; margin-right: 10px;">
+        --!>
       </a>
       <!-- This is the title -->
       <a class="navbar-brand" href="{{ url_for('index') }}">WJ Clubs</a>
@@ -132,10 +134,14 @@
         </div>
       </div>
 
-      <div class="container me-auto">
+       <div class="container me-auto">
+           <!-- @TODO: this bit doesn't display the total of shown clubs correctly, num_clubs should count the number of clubs actually
+           displayed, but currently counts the number of total clubs in the csv regardless of whether they are approved. total_clubs should instead
+           be a value that changes when a search is performed that represents how many clubs matched the search criteria
         <div class="row justify-content-center mt-3">
           <h5 style="margin-top:10px; color: rgb(82, 86, 88)"> Showing {{ total_clubs }} out of {{ num_clubs }} clubs. </h5>
         </div>
+        --!>
         <button class="btn bot-btn" type="button" data-bs-target="#popup" data-bs-toggle="modal">
           Talk to Bot
         </button>
@@ -165,7 +171,7 @@
           max-height: 300px;
           overflow-y: auto;
           border: 2px solid var(--input-border-color, #808080);
-          background-color: #ccd6d2; 
+          background-color: #ccd6d2;
           color: var(--input-text-color, #333333);
           padding: 10px;
           border-radius: var(--border-radius, 5px);
@@ -182,7 +188,7 @@
           outline: none;
           border-color: var(--input-border-hover-color, #999999);
         }
-      
+
         .bot-btn {
           background-color: var(--input-bg-color, #333333);
           border: 2px solid var(--input-border-color, #808080);
@@ -254,12 +260,12 @@
   });
   function renderMarkdown(text) {
     const replacements = [
-      [/\*\*(.*?)\*\*/g, "<strong>$1</strong>"], 
+      [/\*\*(.*?)\*\*/g, "<strong>$1</strong>"],
       [/\*(.*?)\*/g, "<em>$1</em>"],
-      [/__(.*?)__/g, "<strong>$1</strong>"], 
-      [/_([^_]+)_/g, "<em>$1</em>"], 
-      [/`([^`]+)`/g, "<code>$1</code>"], 
-      [/\n/g, "<br>"], 
+      [/__(.*?)__/g, "<strong>$1</strong>"],
+      [/_([^_]+)_/g, "<em>$1</em>"],
+      [/`([^`]+)`/g, "<code>$1</code>"],
+      [/\n/g, "<br>"],
     ];
     return replacements.reduce(
       (text, [pattern, replacement]) => text.replace(pattern, replacement),
@@ -313,10 +319,9 @@
     document.getElementById("userInput").value = "";
   }
 </script>
-      
-      
-      
-      
+
+
+
       <!-- <input class="importedInput" name="text" placeholder="Search..." type="search"> -->
     <!-- End imported button -->
   </center>
@@ -328,7 +333,7 @@
       sessionStorage.setItem('queryInformation', query);
       // Remove special characters
       query = query.replace(/[^a-zA-Z0-9 ]/g, '');
-      
+
       // Check if the string is empty or just spaces
       if (query.trim() === '') {
         window.location.href = '/clubslist';
@@ -380,7 +385,7 @@ window.addEventListener('DOMContentLoaded', () => {
         queryInput.setSelectionRange(savedPosition, savedPosition);
         sessionStorage.removeItem('cursorPosition'); // Clear after restoring
     }
-    
+
     // Debounced search when typing
     queryInput.addEventListener('input', debouncedSearch);
 
@@ -393,9 +398,6 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
-
-
-
 
 <!-- This block spawns in all cards -->
 <div class="container-fluid container-custom" style="margin-top:50px;">
@@ -413,9 +415,9 @@ window.addEventListener('DOMContentLoaded', () => {
             <p class="card-text">{{ club['Purpose'] }}</p>
             <!-- <p class="card-text"><small class="text-muted">{{ club['Select all the days of the week that your club meets'] }} during {{ club['When does your club meet?'] }} in {{ club['Club Meeting Location'] }}</small></p>
             <p class="card-text"><small class="text-muted">{{ club['Social Media Handles (optional)'] }}</small></p> -->
-            <p class="card-text"><small class="text-muted">{{ club['Meeting Days'] }} {{club['Club Meeting Frequency']}} during {{ club['Meeting Times'] }} in {{ club['Meeting Location'] }}</small></p>
-            <p class="card-text"><small class="text-muted"> Sponsor email: {{ club['Sponsor email address'] }} </small></p>
-            <p class="card-text"><small class="text-muted">{{ club['Social Media Handles'] }}</small></p>
+            <p class="card-text"><small class="text-muted">{{ club['Select all the days of the week that your club meets'] }} {{club['Club Meeting Frequency']}} during {{ club['When does your club meet?'] }} in {{ club['Club Meeting Location'] }}</small></p>
+            <p class="card-text"><small class="text-muted">Sponsor email: {{ club['Sponsor email address'] }}</small></p>
+            <p class="card-text"><small class="text-muted">{{ club['Social Media Handles (optional)'] }}</small></p>
           </div>
         </div>
       </div>
