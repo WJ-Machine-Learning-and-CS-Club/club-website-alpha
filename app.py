@@ -16,8 +16,6 @@ from user import User  # Import the User class
 from datetime import timedelta
 from openai import OpenAI
 
-# test
-
 app = Flask(__name__)
 app.config.from_object(config)  # Load all configurations from config.py
 allowed_extensions=config.ALLOWED_EXTENSIONS
@@ -42,20 +40,20 @@ def load_user(user_id):
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('admin')) 
+        return redirect(url_for('admin'))
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
         remember_me = request.form.get('remember_me') == 'on'
-        
+
         # Check if credentials match admin user
         if username == admin_user_test.username and admin_user_test.verify_password(password):
             #login_user(admin_user_test)
             login_user(admin_user_test, remember=remember_me)
             return redirect(url_for('admin'))
-        
+
         flash("Invalid username or password", "danger")
-    
+
     return render_template('login.html')
 
 @app.route('/logout')
@@ -65,7 +63,7 @@ def logout():
     return redirect(url_for('login'))
 
 def validate_file(filename):
-    return '.' in filename and filename.rsplit('.',1)[1].lower() in allowed_extensions 
+    return '.' in filename and filename.rsplit('.',1)[1].lower() in allowed_extensions
 
 @app.route('/upload', methods=['POST'])
 @login_required
@@ -74,14 +72,14 @@ def upload_file():
     if 'file' not in request.files:
         flash('No file part.', 'danger')
         return redirect(url_for('admin'))
-    
+
     file = request.files['file']
 
     # If the user does not select a file, the browser may submit an empty part
     if file.filename == '':
         flash('No selected file.', 'danger')
         return redirect(url_for('admin'))
-    
+
     if file and validate_file(file.filename):
         # this is to prevent malicious stuff
         filename = secure_filename(file.filename)
@@ -95,7 +93,7 @@ def upload_file():
             csv_check=image_upload.check_columns(filepath, expected_columns_allclubs)
             if csv_check!=True:
                 flash(csv_check, 'danger')
-                return redirect(url_for('admin')) 
+                return redirect(url_for('admin'))
             image_upload.preprocess_file(filepath)
             ref_club_file_path = app.config['REFERENCE_CLUBS_INFO']
             image_upload.download_images(ref_club_file_path)
@@ -103,14 +101,14 @@ def upload_file():
             csv_check=image_upload.check_columns(filepath, expected_columns_featured)
             if csv_check!=True:
                 flash(csv_check, 'danger')
-                return redirect(url_for('admin')) 
+                return redirect(url_for('admin'))
             image_upload.preprocess_file_featured(filepath)
             ref_featured_club_file_path = app.config['REFERENCE_FEATURED_CLUBS_INFO']
             image_upload.download_images_featured(ref_featured_club_file_path)
         else:
             flash('Invalid action.', 'danger')
 
-        
+
         return redirect(url_for('admin'))
     flash('Invalid file type.', 'danger')
     return redirect(url_for('admin'))
@@ -134,9 +132,9 @@ def generate_html_featured(csv_file):
 
 def generate_html(csv_file, clubsToDisplay=None):
     clubs = []
-    rig = True
-    rig_list=["AI Club", "Website Development Club"]
-    fixed_indexes=[]
+    # rig = False
+    # rig_list=["AI Club", "Website Development Club"]
+    # fixed_indexes=[]
     total_index=0
 
     with open(csv_file, 'r') as file:
@@ -147,21 +145,21 @@ def generate_html(csv_file, clubsToDisplay=None):
             if row['Sponsor Replied'] == "True" and row['Added to Website'] == "True":
                 rows.append(row)
                 # Check if the club is in the rig list and add its index to fixed_indexes
-                if row['Club Name'] in rig_list and rig:
-                    fixed_indexes.append(index)
+                # if row['Club Name'] in rig_list and rig:
+                #     fixed_indexes.append(index)
 
     if clubsToDisplay is None or len(clubsToDisplay) == 0:
         clubsToDisplay = list(range(len(rows)))
         #fixed_indexes = [57, 70]
-        indexes_to_randomize = [i for i in clubsToDisplay if i not in fixed_indexes]
+        indexes_to_randomize = [i for i in clubsToDisplay]
         randomized_indexes = random.sample(indexes_to_randomize, len(indexes_to_randomize))
-        clubsToDisplay = fixed_indexes + randomized_indexes
-    print(clubsToDisplay)
+        clubsToDisplay = randomized_indexes
+
     for index in clubsToDisplay:
         if 0 <= index < len(rows):
             clubs.append(rows[index])
 
-    return clubs, len(clubs), total_index
+    return clubs, len(rows), total_index
 
 @app.route('/')
 @app.route('/index')
@@ -196,7 +194,7 @@ def botSubmit():
     data = request.get_json()
     if not data or 'history' not in data:
         return jsonify({"error": "No chat history provided"}), 400
-    
+
     club_names = pd.read_csv(app.config['REFERENCE_CLUBS_INFO'])["Club Name"].tolist()
     club_guide = ", ".join(club_names)
     history = data['history']
@@ -204,9 +202,9 @@ def botSubmit():
         "role": "system",
         "content": (
             f"""
-        You are WJClubsAI, a helpful assistant designed to answer questions about clubs, events, and general student activities. 
+        You are WJClubsAI, a helpful assistant designed to answer questions about clubs, events, and general student activities.
         Here is a list of clubs to guide you: {club_guide}.
-        Respond in a concise and friendly tone, offering suggestions where appropriate, 
+        Respond in a concise and friendly tone, offering suggestions where appropriate,
         and do not respond to anything unrelated.
         """
         )
@@ -223,6 +221,7 @@ def botSubmit():
     except Exception as e:
         print(f"Error during OpenAI API call: {e}")
         return jsonify({"error": "Unable to process your request."}), 500
+
 
 @app.errorhandler(404)
 def page_not_found(e):
