@@ -8,7 +8,7 @@ import csv
 import regular_search
 import random
 import image_upload
-#import dotenv
+#import dotenvpwd
 import secrets
 import pandas as pd
 import config  # Import the config module
@@ -132,34 +132,27 @@ def generate_html_featured(csv_file):
 
 def generate_html(csv_file, clubsToDisplay=None):
     clubs = []
-    # rig = False
-    # rig_list=["AI Club", "Website Development Club"]
-    # fixed_indexes=[]
     total_index=0
 
     with open(csv_file, 'r') as file:
         reader = csv.DictReader(file)
         rows = []
         for index, row in enumerate(reader):
-            total_index+=1
             if row['Sponsor Replied'] == "True" and row['Added to Website'] == "True":
                 rows.append(row)
-                # Check if the club is in the rig list and add its index to fixed_indexes
-                # if row['Club Name'] in rig_list and rig:
-                #     fixed_indexes.append(index)
+                total_index+=1
 
-    if clubsToDisplay is None or len(clubsToDisplay) == 0:
+    if clubsToDisplay is None:
         clubsToDisplay = list(range(len(rows)))
-        #fixed_indexes = [57, 70]
         indexes_to_randomize = [i for i in clubsToDisplay]
         randomized_indexes = random.sample(indexes_to_randomize, len(indexes_to_randomize))
         clubsToDisplay = randomized_indexes
-
+    
     for index in clubsToDisplay:
         if 0 <= index < len(rows):
             clubs.append(rows[index])
 
-    return clubs, len(rows), total_index
+    return clubs, len(clubs), total_index
 
 @app.route('/')
 @app.route('/index')
@@ -183,7 +176,7 @@ def clubslist():
 
 @app.route('/clubslist/<user_query>')
 def clubslistCustom(user_query):
-    club_list = regular_search.get_min_levenshtein_distance(user_query).index
+    club_list = regular_search.get_contains_string(user_query).index
     ref_club_file_path = app.config['REFERENCE_CLUBS_INFO']
     clubs, total_clubs, num_clubs = generate_html(ref_club_file_path, club_list)
     return render_template('clubs.html', clubs=clubs, total_clubs=total_clubs, num_clubs=num_clubs)
