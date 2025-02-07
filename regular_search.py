@@ -7,7 +7,7 @@ import config
 
 ref_club_file_path = config.REFERENCE_CLUBS_INFO
 
-rig=True
+rig=False
 vectorized_df = pd.read_csv(ref_club_file_path)
 
 def get_max_cosine_similarity(query):
