@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='clubslist.css')}}" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-
+  <script src="https://kit.fontawesome.com/c304c26173.js" crossorigin="anonymous"></script>
 
 
 </head>
@@ -141,7 +141,7 @@
         <div class="row justify-content-center mt-3">
           <h5 style="margin-top:10px; color: rgb(82, 86, 88)"> Showing {{ total_clubs }} out of {{ num_clubs }} clubs. </h5>
         </div>
-        --!>
+        -->
         <button class="btn bot-btn" type="button" data-bs-target="#popup" data-bs-toggle="modal">
           Talk to Bot
         </button>
@@ -406,7 +406,7 @@ window.addEventListener('DOMContentLoaded', () => {
   {% for club in clubs %}
     {% if club['Sponsor Replied']== "True" and club['Added to Website'] == "True" %}
       <div class="col-md-4 mb-3">
-        <div class="card h-100 shadow-lg shadow p-3" style="background-color:#ccd6d2; border-width: 2px; border-color: lightslategrey;">
+        <div class="card h-100 shadow-lg shadow p-3" style="background-color:#ccd6d2; border-width: 2px; border-radius: 30px; border-color: lightslategrey;">
           <div class="card-img-wrapper">
             <img src="{{ url_for('static', filename=club['Image Path']) }}" style="height:auto;" class="card-img-top border border-dark" alt="{{ club['Club Name'] }}">
           </div>
@@ -418,6 +418,10 @@ window.addEventListener('DOMContentLoaded', () => {
             <p class="card-text"><small class="text-muted">{{ club['Select all the days of the week that your club meets'] }} {{club['Club Meeting Frequency']}} during {{ club['When does your club meet?'] }} in {{ club['Club Meeting Location'] }}</small></p>
             <p class="card-text"><small class="text-muted">Sponsor email: {{ club['Sponsor email address'] }}</small></p>
             <p class="card-text"><small class="text-muted">{{ club['Social Media Handles (optional)'] }}</small></p>
+            <a target="_blank" href="https://www.instagram.com/{{ club['Social Media Handles (optional)'].split(' ')[0] }}">
+              <i class="fa-brands fa-instagram"></i>
+            </a>
+            
           </div>
         </div>
       </div>
