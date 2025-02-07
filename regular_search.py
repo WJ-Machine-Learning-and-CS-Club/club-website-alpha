@@ -7,7 +7,7 @@ import config
 
 ref_club_file_path = config.REFERENCE_CLUBS_INFO
 
-rig=True
+rig=False
 vectorized_df = pd.read_csv(ref_club_file_path)
 
 def get_max_cosine_similarity(query):
@@ -151,3 +151,59 @@ def get_tfidf_cosine_similarity(query):
         output_df = pd.concat([output_df[:1], top_row, output_df[1:]], ignore_index=False)
     
     return output_df[['Name', 'MaximumSimilarityScore']]
+
+
+def get_contains_string(query):
+    text_columns = vectorized_df.columns.tolist()
+    print(text_columns)
+    contains_query = []
+    
+    for i, row in vectorized_df.iterrows():
+        contains = False
+        for column in text_columns:
+            if column in vectorized_df.columns:
+                text = row[column]
+                if not isinstance(text, str):
+                    text = ''
+                
+                # Check if query is a substring of the text (case insensitive)
+                if query.lower() in text.lower():
+                    contains = True
+                    break  # If found in any column, no need to check further columns
+
+        contains_query.append(contains)
+
+    output_df = pd.DataFrame({
+        'Name': vectorized_df['Club Name'],
+        'ContainsQuery': contains_query
+    })
+
+    # Filter rows where query is found
+    filtered_df = output_df[output_df['ContainsQuery'] == True]
+    output_df = filtered_df
+
+    # Sort the DataFrame by Club Name (or other columns if needed)
+    output_df = output_df.sort_values(by='Name', ascending=True)
+
+    if rig and len(output_df['Name'])!=0:
+        if 'AI Club' in output_df['Name'].tolist() and 'Website Development Club' in output_df['Name'].tolist():
+            top_row = pd.DataFrame([])
+        elif 'AI Club' in output_df['Name'].tolist():
+            top_row = pd.DataFrame([
+                {'Name': 'Website Development Club', 'MinimumDistanceScore': 0, 'ContainsQuery': True}
+            ])
+            top_row.index = [70]
+        elif 'Website Development Club' in output_df['Name'].tolist():
+            top_row = pd.DataFrame([
+                {'Name': 'AI Club', 'MinimumDistanceScore': 0, 'ContainsQuery': True}
+            ])
+            top_row.index = [57]
+        else:
+            top_row = pd.DataFrame([
+                {'Name': 'AI Club', 'MinimumDistanceScore': 0, 'ContainsQuery': True},
+                {'Name': 'Website Development Club', 'MinimumDistanceScore': 0, 'ContainsQuery': True}
+            ])
+            top_row.index = [57, 70]
+        #output_df = pd.concat([output_df[1:], top_row, output_df[:1]], ignore_index=True)
+        output_df = pd.concat([output_df[:1], top_row, output_df[1:]], ignore_index=False)
+    return output_df['Name']
