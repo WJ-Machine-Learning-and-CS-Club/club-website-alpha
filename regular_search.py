@@ -4,11 +4,19 @@ import Levenshtein as lev
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import config
+import csv
 
 ref_club_file_path = config.REFERENCE_CLUBS_INFO
 
 rig=False
-vectorized_df = pd.read_csv(ref_club_file_path)
+#vectorized_df = pd.read_csv(ref_club_file_path)
+with open(ref_club_file_path, 'r') as file:
+        reader = csv.DictReader(file)
+        rows = []
+        for index, row in enumerate(reader):
+            if row['Sponsor Replied'] == "True" and row['Added to Website'] == "True":
+                rows.append(row)
+vectorized_df=pd.DataFrame(rows)
 
 def get_max_cosine_similarity(query):
     query_vector = query.toarray()
