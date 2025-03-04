@@ -141,7 +141,7 @@ def generate_html(csv_file, clubsToDisplay=None):
             if row['Sponsor Replied'] == "True" and row['Added to Website'] == "True":
                 rows.append(row)
                 total_index+=1
-
+    rows=pd.DataFrame(rows)
     if clubsToDisplay is None:
         clubsToDisplay = list(range(len(rows)))
         indexes_to_randomize = [i for i in clubsToDisplay]
@@ -150,7 +150,7 @@ def generate_html(csv_file, clubsToDisplay=None):
     
     for index in clubsToDisplay:
         if 0 <= index < len(rows):
-            clubs.append(rows[index])
+            clubs.append(rows.iloc[index])
 
     return clubs, len(clubs), total_index
 
