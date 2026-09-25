@@ -1,20 +1,15 @@
-from flask import Flask, render_template, redirect, url_for, request, flash, jsonify
-from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from flask import Flask, render_template, redirect, url_for, request, flash, session
+from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from werkzeug.utils import secure_filename
-from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import csv
-#import cosineSim
 import regular_search
 import random
 import image_upload
-#import dotenvpwd
-import secrets
 import pandas as pd
-import config  # Import the config module
-from user import User  # Import the User class
+import config
+from user import User
 from datetime import timedelta
-from openai import OpenAI
 
 app = Flask(__name__)
 app.config.from_object(config)  # Load all configurations from config.py
@@ -22,13 +17,18 @@ allowed_extensions=config.ALLOWED_EXTENSIONS
 expected_columns_allclubs=config.expected_columns_allclubs
 expected_columns_featured=config.expected_columns_featured
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=1)
+app.config['SESSION_COOKIE_DURATION'] = timedelta(hours=24)
+app.config['REMEMBER_COOKIE_DURATION'] = timedelta(hours=24)
 
-# Initialize LoginManager
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = "login"
 
-admin_user_test = User(1, "mrm", "wjclubs")
+admin_user_test = User.from_password_hash(
+    1,
+    os.environ["ADMIN_USERNAME"],
+    os.environ["ADMIN_PASSWORD_HASH"],
+)
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -44,12 +44,11 @@ def login():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        remember_me = request.form.get('remember_me') == 'on'
-
         # Check if credentials match admin user
         if username == admin_user_test.username and admin_user_test.verify_password(password):
             #login_user(admin_user_test)
-            login_user(admin_user_test, remember=remember_me)
+            session.permanent = True
+            login_user(admin_user_test, remember=True)
             return redirect(url_for('admin'))
 
         flash("Invalid username or password", "danger")
@@ -121,15 +120,6 @@ def delete_files():
     flash('Files successfully deleted!', 'success')
     return redirect(url_for('admin'))
 
-def generate_html_featured(csv_file):
-    clubs=[]
-    with open(csv_file, 'r') as file:
-        reader = csv.DictReader(file)
-        for index, row in enumerate(reader):
-            clubs.append(row)
-    return clubs
-
-
 def generate_html(csv_file, clubsToDisplay=None):
     clubs = []
     total_index=0
@@ -147,7 +137,7 @@ def generate_html(csv_file, clubsToDisplay=None):
         indexes_to_randomize = [i for i in clubsToDisplay]
         randomized_indexes = random.sample(indexes_to_randomize, len(indexes_to_randomize))
         clubsToDisplay = randomized_indexes
-    
+
     for index in clubsToDisplay:
         if 0 <= index < len(rows):
             clubs.append(rows.iloc[index])
@@ -157,14 +147,13 @@ def generate_html(csv_file, clubsToDisplay=None):
 @app.route('/')
 @app.route('/index')
 def index():
-    ref_featured_club_file_path = app.config['REFERENCE_FEATURED_CLUBS_INFO']
-    clubs=generate_html_featured(ref_featured_club_file_path)
-    return render_template('index.html', clubs=clubs)
+    return redirect(url_for('clubslist'))
 
 @app.route('/admin')
 @login_required
 def admin():
-    return render_template('admin.html')
+    files = sorted(os.listdir(app.config['UPLOAD_FOLDER_IMAGES']))
+    return render_template('admin.html', files=files)
 # Route for handling the button click
 
 @app.route('/clubslist')
@@ -180,41 +169,6 @@ def clubslistCustom(user_query):
     ref_club_file_path = app.config['REFERENCE_CLUBS_INFO']
     clubs, total_clubs, num_clubs = generate_html(ref_club_file_path, club_list)
     return render_template('clubs.html', clubs=clubs, total_clubs=total_clubs, num_clubs=num_clubs)
-
-@app.route('/botSubmit', methods=['POST'])
-def botSubmit():
-    api_key = ""
-    data = request.get_json()
-    if not data or 'history' not in data:
-        return jsonify({"error": "No chat history provided"}), 400
-
-    club_names = pd.read_csv(app.config['REFERENCE_CLUBS_INFO'])["Club Name"].tolist()
-    club_guide = ", ".join(club_names)
-    history = data['history']
-    custom_prompt = {
-        "role": "system",
-        "content": (
-            f"""
-        You are WJClubsAI, a helpful assistant designed to answer questions about clubs, events, and general student activities.
-        Here is a list of clubs to guide you: {club_guide}.
-        Respond in a concise and friendly tone, offering suggestions where appropriate,
-        and do not respond to anything unrelated.
-        """
-        )
-    }
-    history.insert(0, custom_prompt)
-    try:
-        client = OpenAI(api_key=api_key)
-        response = client.chat.completions.create(
-            messages=history,
-            model="gpt-4o-mini",
-        )
-        generated_text = response.choices[0].message.content.strip()
-        return jsonify({"response": generated_text})
-    except Exception as e:
-        print(f"Error during OpenAI API call: {e}")
-        return jsonify({"error": "Unable to process your request."}), 500
-
 
 @app.errorhandler(404)
 def page_not_found(e):
