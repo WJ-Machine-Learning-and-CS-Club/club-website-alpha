@@ -1,207 +1,76 @@
-* {
-  border: 0;
-  margin: 0;
-  padding: 0;
+:root {
+  --ink: #243447;
+  --muted: #617080;
+  --line: #dce3e8;
+  --paper: #f5f7f8;
+  --surface: #ffffff;
+  --accent: #2f6f62;
+  --accent-dark: #24564d;
 }
 
-html {
-  height: 100%;
-}
-.importedInput {
-  max-width: 190px;
-  background-color: #f5f5f5;
-  color: #242424;
-  padding: .15rem .5rem;
-  min-height: 40px;
-  border-radius: 4px;
-  outline: none;
-  border: none;
-  line-height: 1.15;
-  box-shadow: 0px 10px 20px -18px;
-}
+* { box-sizing: border-box; }
 
-importedInput:focus {
-  border-bottom: 2px solid #5b5fc7;
-  border-radius: 4px 4px 2px 2px;
-}
-
-importedInput:hover {
-  outline: 1px solid lightgrey;
-}
 body {
-  height: 100%;
-  background: linear-gradient(100deg,  #8ebda6 0%, #277652 100%);
-  background-attachment: fixed;
+  margin: 0;
+  min-width: 320px;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: Georgia, 'Times New Roman', serif;
 }
 
-.card-img-top {
-  max-height: 300px;
-  object-fit: cover;
+.site-nav {
+  min-height: 70px;
+  background: #ffffff;
+  border-bottom: 1px solid var(--line);
 }
 
-.card-img-wrapper {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 300px;
-  /* Adjust to control image container height */
-  overflow: hidden;
+.brand-logo { width: 42px; height: 42px; object-fit: contain; }
+.navbar-brand { color: var(--ink); font-size: 1.15rem; font-weight: 700; }
+.nav-link { color: #4d5b67; font-family: Arial, sans-serif; font-size: .9rem; }
+.nav-link:hover, .nav-link.active { color: var(--accent); }
+.dropdown-menu { border: 1px solid var(--line); box-shadow: 0 8px 20px rgba(36, 52, 71, .1); }
+.dropdown-item { font-family: Arial, sans-serif; }
+.dropdown-item:active { background: var(--accent); }
+.admin-link { color: var(--accent); font-family: Arial, sans-serif; font-size: .9rem; text-decoration: none; }
+
+.directory-header { padding: 62px 0 28px; background: #edf2f0; border-bottom: 1px solid var(--line); }
+.header-copy { max-width: 700px; }
+.section-label { margin: 0 0 10px; color: var(--accent); font-family: Arial, sans-serif; font-size: .72rem; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+h1 { margin: 0; font-size: clamp(2.5rem, 6vw, 4.5rem); font-weight: 700; letter-spacing: -.03em; }
+.intro { margin: 12px 0 28px; color: var(--muted); font-family: Arial, sans-serif; font-size: 1rem; }
+.search-form { display: flex; max-width: 900px; gap: 10px; }
+.search-form .form-control { min-height: 48px; border: 1px solid #c6d0d5; border-radius: 5px; color: var(--ink); font-family: Arial, sans-serif; }
+.category-filter { min-width: 170px; border: 1px solid #c6d0d5; color: var(--ink); font-family: Arial, sans-serif; }
+.category-filter:focus { border-color: var(--accent); box-shadow: 0 0 0 .2rem rgba(47, 111, 98, .15); }
+.search-form .form-control:focus { border-color: var(--accent); box-shadow: 0 0 0 .2rem rgba(47, 111, 98, .15); }
+.search-button { min-width: 100px; border-radius: 5px; background: var(--accent); color: #fff; font-family: Arial, sans-serif; font-weight: 700; }
+.search-button:hover { background: var(--accent-dark); color: #fff; }
+.result-count { margin: 15px 0 0; color: var(--muted); font-family: Arial, sans-serif; font-size: .85rem; }
+
+.clubs-section { padding: 42px 0 70px; }
+.club-card { overflow: hidden; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); box-shadow: 0 4px 14px rgba(36, 52, 71, .06); transition: transform .18s ease, box-shadow .18s ease; }
+.club-item[hidden] { display: none; }
+.club-card:hover { transform: translateY(-3px); box-shadow: 0 10px 24px rgba(36, 52, 71, .11); }
+.club-image-wrap { display: flex; align-items: center; justify-content: center; height: 220px; padding: 18px; background: #eef2f1; border-bottom: 1px solid var(--line); }
+.club-image-wrap img { width: 100%; height: 100%; object-fit: contain; }
+.club-card-body { padding: 22px; }
+.club-card h2 { margin: 0 0 10px; font-size: 1.4rem; line-height: 1.15; }
+.club-purpose { min-height: 50px; margin: 0 0 18px; color: var(--muted); font-family: Arial, sans-serif; font-size: .92rem; line-height: 1.5; }
+.club-details { margin: 0; font-family: Arial, sans-serif; font-size: .82rem; }
+.club-details div { display: grid; grid-template-columns: 58px 1fr; gap: 10px; padding: 8px 0; border-top: 1px solid #edf0f1; }
+.club-details .schedule-row dd { grid-column: 1 / -1; }
+.club-details dt { color: var(--accent); font-weight: 700; }
+.club-details dd { margin: 0; color: var(--muted); }
+.social-link { display: inline-block; margin-top: 14px; color: var(--muted); font-family: Arial, sans-serif; font-size: .82rem; font-weight: 400; text-decoration: none; }
+.social-link:hover { color: var(--accent-dark); text-decoration: underline; }
+.social-link a { color: var(--accent-dark); font-weight: 700; }
+.empty-state { padding: 60px 0; color: var(--muted); font-family: Arial, sans-serif; text-align: center; }
+.site-footer { padding: 24px 0; background: #243447; color: #dce3e8; font-family: Arial, sans-serif; font-size: .78rem; line-height: 1.5; text-align: center; }
+
+@media (max-width: 575px) {
+  .directory-header { padding-top: 42px; }
+  .search-form { flex-direction: column; }
+  .category-filter { width: 100%; }
+  .search-button { width: 100%; }
+  .club-image-wrap { height: 190px; }
 }
-
-.container-custom {
-  padding: 0 10vw;
-}
-
-/* Bottom of the page, with the "All clubs/organizations are inclusive of 
-all students regardless of sex or gender identity. Website created and 
-maintained by Walter Johnson Web Development Club." message */
-.footer {
-  position: fixed;
-  left: 0;
-  bottom: 0;
-  width: 100%;
-  height: 5%;
-  background-color: #31353a;
-  color: #c1bebe;
-  padding: 1vh 1vw 1vw 1vw;
-}
-
-button,
-input {
-  font: 1em Hind, sans-serif;
-  line-height: 1.5em;
-}
-
-input {
-  color: #171717;
-}
-
-.club-card {
-  background-color: #608068;
-}
-
-.search-bar {
-  display: flex;
-}
-
-    /* Imported Search Bar in top bar start */
-    .search {
-      --input-line: #cccccc;
-      --input-text-color: #808080;
-      --input-text-hover-color: transparent;
-      --input-border-color: #808080;
-      --input-border-hover-color: #999999;
-      --input-bg-color: #333333;
-      --search-max-width: 250px;
-      --search-min-width: 150px;
-      --border-radius: 5px;
-      --transition-cubic-bezier: 150ms cubic-bezier(0.4,0,0.2,1);
-    }
-    
-    .search-box {
-      max-width: var(--search-max-width);
-      min-width: var(--search-min-width);
-      height: 35px;
-      border: 1px solid var(--input-border-color);
-      border-radius: var(--border-radius);
-      padding: 5px 15px;
-      background: var(--input-bg-color);
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
-      transition: var(--transition-cubic-bezier);
-    }
-    
-    .search-box:hover {
-      border-color: var(--input-border-hover-color);
-    }
-    
-    /*Section input*/
-    .search-field {
-      position: relative;
-      width: 100%;
-      height: 100%;
-      left: -5px;
-      border: 0;
-    }
-    
-    .input {
-      width: calc(100% - 29px);
-      height: 100%;
-      border: 0;
-      border-color: transparent;
-      font-size: 1rem;
-      padding-right: 0px;
-      color: var(--input-line);
-      background: var(--input-bg-color);
-      outline: none;
-    }
-    
-    .input::-webkit-input-placeholder {
-      color: var(--input-text-color);
-    }
-    
-    .input::-moz-input-placeholder {
-      color: var(--input-text-color);
-    }
-    
-    .input::-ms-input-placeholder {
-      color: var(--input-text-color);
-    }
-    
-    .input:focus::-webkit-input-placeholder {
-      color: var(--input-text-hover-color);
-    }
-    
-    .input:focus::-moz-input-placeholder {
-      color: var(--input-text-hover-color);
-    }
-    
-    .input:focus::-ms-input-placeholder {
-      color: var(--input-text-hover-color);
-    }
-    
-    /*Search button*/
-
-    .search-box-icon {
-      /* This is the image */
-      width: 46px;
-      height: 34px;
-      position: absolute;
-      top: -5px;
-      right: -21px;
-      background: transparent;
-      border-bottom-right-radius: var(--border-radius);
-      border-top-right-radius: var(--border-radius);
-      transition: var(--transition-cubic-bezier);
-    }
-    
-    .search-box-icon:hover {
-      background: var(--input-border-color);
-    }
-    
-    .btn-icon-content {
-      width: 46px;
-      height: 34px;
-      top: -5px;
-      right: -25px;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      border-bottom-right-radius: var(--border-radius);
-      border-top-right-radius: var(--border-radius);
-      transition: var(--transition-cubic-bezier);
-      opacity: .4;
-    }
-    
-    .btn-icon-content:hover {
-      /* Changes the opacity of the image when hovered over */
-      opacity: .7;
-    }
-    
-    .search-icon {
-      /* Adjusts the position of the search image */
-      width: 21px;
-      height: 21px;
-      position: absolute;
-      top: 4px;
-      right: 13px;
-    }
