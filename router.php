@@ -63,32 +63,34 @@ function csv_value($row, $name) {
 }
 
 function social_markup($value) {
-    $text = preg_replace('/\s+instagram\s*$/i', '', (string) $value);
-    if (preg_match('/\[([^\]]+)\]\((https?:\/\/(?:www\.)?instagram\.com\/[^\s)]+)\)/i', $text, $markdown)) {
-        return 'Social: <a href="' . e($markdown[2]) . '" target="_blank" rel="noopener">' . e($markdown[1]) . '</a>';
+    $text = trim((string) $value);
+    if ($text === '' || preg_match('/^(none|na|n\/a|no|not yet|we haven)/i', $text)) {
+        return '';
     }
-    $escaped = e($text);
-    if (preg_match('~https?://(?:www\.)?instagram\.com/[^\s)]+~i', $text, $match)) {
-        $link = e($match[0]);
-        return 'Social: ' . str_replace($link, '<a href="' . $link . '" target="_blank" rel="noopener">' . $link . '</a>', $escaped);
+    $platforms = [
+        'instagram' => 'https://www.instagram.com/',
+        'insta' => 'https://www.instagram.com/',
+        'ig' => 'https://www.instagram.com/',
+        'tiktok' => 'https://www.tiktok.com/@',
+        'discord' => '',
+        'youtube' => '',
+    ];
+    $out = '';
+    $offset = 0;
+    $pattern = '/(?:instagram\b|insta\b|ig\b|tiktok\b|discord\b|youtube\b)(?!\.com\b|\/)\s*:?\s*@?\s*([a-z0-9._]+)|(?<![a-z0-9.\/(])@([a-z0-9._]+)(?:\s*\(?(?:on\s+)?(?:instagram|insta|ig|tiktok)\)?)?|(?<![a-z0-9._])([a-z0-9._]*[._][a-z0-9._]*)\s+(?:on\s+)?\(?(?:instagram|insta|ig|tiktok)\)?\b/i';
+    while (preg_match($pattern, $text, $m, PREG_OFFSET_CAPTURE, $offset)) {
+        $start = $m[0][1];
+        $out .= e(substr($text, $offset, $start - $offset));
+        $token = $m[0][0];
+        $handle = !empty($m[1][0]) ? $m[1][0] : (!empty($m[2][0]) ? $m[2][0] : $m[3][0]);
+        $label = strtolower(trim(preg_replace('/[^a-z]/i', '', substr($token, 0, strpos($token, $handle)))));
+        $base = $platforms[$label] ?? 'https://www.instagram.com/';
+        $link = $base === '' ? '#' : $base . $handle;
+        $out .= '<a href="' . e($link) . '" target="_blank" rel="noopener">@' . e($handle) . '</a>';
+        $offset = $start + strlen($token);
     }
-    if (preg_match('/(?:instagram|ig)\s*:?\s*(?!\(?instagram\)?)([a-z0-9._]+)/i', $text, $match)) {
-        $handle = e($match[1]);
-        return 'Social: ' . str_replace($match[0], '<a href="https://www.instagram.com/' . $handle . '" target="_blank" rel="noopener">' . $handle . '</a>', $escaped);
-    }
-    if (preg_match('/([a-z0-9._]+)\s*\(instagram\)/i', $text, $match)) {
-        $handle = e($match[1]);
-        return 'Social: ' . str_replace($match[0], '<a href="https://www.instagram.com/' . $handle . '" target="_blank" rel="noopener">' . $handle . '</a>', $escaped);
-    }
-    if (preg_match('/@([a-z0-9._]+)/i', $text, $match)) {
-        $handle = e($match[1]);
-        return 'Social: ' . str_replace($match[0], '<a href="https://www.instagram.com/' . $handle . '" target="_blank" rel="noopener">' . $handle . '</a>', $escaped);
-    }
-    if (preg_match('/([a-z0-9._]+)/i', $text, $match)) {
-        $handle = e($match[1]);
-        return 'Social: ' . str_replace($match[0], '<a href="https://www.instagram.com/' . $handle . '" target="_blank" rel="noopener">' . $handle . '</a>', $escaped);
-    }
-    return 'Social: ' . $escaped;
+    $out .= e(substr($text, $offset));
+    return 'Social: ' . $out;
 }
 
 function start_page() {
@@ -96,40 +98,19 @@ function start_page() {
 }
 
 function end_page() {
-    echo '<footer class="site-footer"><div class="container">All clubs and organizations are inclusive of all students regardless of sex or gender identity. Website created by Web Development Club and renewed by Hack Club.</div></footer><script>const queryInput=document.getElementById("query");const categoryInput=document.getElementById("category");const clubItems=Array.from(document.querySelectorAll("[data-club-item]"));const resultCount=document.querySelector(".result-count");function filterClubs(){const query=queryInput.value.trim().toLowerCase();const category=categoryInput.value.toLowerCase();let visible=0;clubItems.forEach(item=>{const matchesQuery=!query||item.dataset.searchText.toLowerCase().includes(query);const matchesCategory=!category||item.dataset.category.toLowerCase().includes(category);item.hidden=!(matchesQuery&&matchesCategory);if(!item.hidden)visible++});resultCount.textContent=`Showing ${visible} of ${clubItems.length} clubs`}if(queryInput)queryInput.addEventListener("input",filterClubs);if(categoryInput)categoryInput.addEventListener("change",filterClubs);</script><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script></body></html>';
+    echo '<footer class="site-footer"><div class="container">All clubs and organizations are inclusive of all students regardless of sex or gender identity. Website created by Web Development Club and renewed by ryanjetplane1.</div></footer><script>const queryInput=document.getElementById("query");const categoryInput=document.getElementById("category");const clubItems=Array.from(document.querySelectorAll("[data-club-item]"));const resultCount=document.querySelector(".result-count");function filterClubs(){const query=queryInput.value.trim().toLowerCase();const category=categoryInput.value.toLowerCase();let visible=0;clubItems.forEach(item=>{const matchesQuery=!query||item.dataset.searchText.toLowerCase().includes(query);const matchesCategory=!category||item.dataset.category.toLowerCase().includes(category);item.hidden=!(matchesQuery&&matchesCategory);if(!item.hidden)visible++});resultCount.textContent=`Showing ${visible} of ${clubItems.length} clubs`}if(queryInput)queryInput.addEventListener("input",filterClubs);if(categoryInput)categoryInput.addEventListener("change",filterClubs);</script><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script></body></html>';
 }
 
 if ($path === '/login') {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $username = trim($_POST['username'] ?? '');
-        $password = trim($_POST['password'] ?? '');
-        if ($username === $ADMIN_USERNAME && $password === $ADMIN_PASSWORD) {
-            $_SESSION['admin_logged_in'] = true;
-            header('Location: /admin');
-            http_response_code(302);
-            exit;
-        }
-        $error = 'Invalid username or password';
-    }
     start_page();
-    echo '<main class="login-page"><section class="outlined-box"><h1>Login</h1>';
-    if (isset($error)) echo '<div class="alert alert-danger">' . e($error) . '</div>';
-    echo '<form method="post" action="/login"><label for="username">Username</label><input id="username" name="username"><label for="password">Password</label><input id="password" name="password" type="password"><button class="btn search-button mt-3" type="submit">Sign in</button></form><a class="btn btn-secondary mt-3" href="/">Back to Clubs</a></section></main>';
+    echo '<main class="login-page"><section class="outlined-box"><h1>Login</h1><form><label for="username">Username</label><input id="username"><label for="password">Password</label><input id="password" type="password"><button class="btn search-button mt-3" type="button" onclick="window.location.href=\'/admin\'">Sign in</button></form><a class="btn btn-secondary mt-3" href="/">Back to Clubs</a></section></main>';
     end_page();
     exit;
 }
 
-if ($path === '/logout') {
-    session_destroy();
-    header('Location: /login');
-    http_response_code(302);
-    exit;
-}
-
 if ($path === '/admin') {
-    require_login();
     start_page();
-    echo '<main class="admin-shell"><div class="admin-heading"><p class="section-label">Site management</p><h1>Admin dashboard</h1><p>Update club information, featured clubs, and local images.</p><a class="btn btn-outline-secondary mt-2" href="/logout">Log out</a></div><div class="row g-4"><div class="col-lg-6"><section class="admin-card h-100"><p class="admin-card-label">Directory data</p><h2>Update all clubs</h2><p>Upload the CSV used for the main club directory.</p><form><input class="form-control" type="file" accept=".csv"><button class="btn admin-primary mt-3" type="button">Upload CSV</button></form></section></div><div class="col-lg-6"><section class="admin-card h-100"><p class="admin-card-label">Homepage feature data</p><h2>Update featured clubs</h2><p>Upload the CSV used for featured club content.</p><form><input class="form-control" type="file" accept=".csv"><button class="btn admin-primary mt-3" type="button">Upload CSV</button></form></section></div><div class="col-lg-6 delete-card-column"><section class="admin-card h-100"><p class="admin-card-label">Local assets</p><h2>Delete downloaded images</h2><p>Remove locally stored club images before downloading a fresh set.</p><div class="delete-form"><button class="btn btn-outline-danger mt-2" type="button">Delete images</button></div></section></div></div></main>';
+    echo '<main class="admin-shell"><div class="admin-heading"><p class="section-label">Site management</p><h1>Admin dashboard</h1><p>Update club information, featured clubs, and local images.</p></div><div class="row g-4"><div class="col-lg-6"><section class="admin-card h-100"><p class="admin-card-label">Directory data</p><h2>Update all clubs</h2><p>Upload the CSV used for the main club directory.</p><form><input class="form-control" type="file" accept=".csv"><button class="btn admin-primary mt-3" type="button">Upload CSV</button></form></section></div><div class="col-lg-6"><section class="admin-card h-100"><p class="admin-card-label">Homepage feature data</p><h2>Update featured clubs</h2><p>Upload the CSV used for featured club content.</p><form><input class="form-control" type="file" accept=".csv"><button class="btn admin-primary mt-3" type="button">Upload CSV</button></form></section></div><div class="col-lg-6 delete-card-column"><section class="admin-card h-100"><p class="admin-card-label">Local assets</p><h2>Delete downloaded images</h2><p>Remove locally stored club images before downloading a fresh set.</p><div class="delete-form"><button class="btn btn-outline-danger mt-2" type="button">Delete images</button></div></section></div></div></main>';
     end_page();
     exit;
 }
@@ -148,7 +129,7 @@ start_page();
 echo '<main><section class="directory-header"><div class="container"><div class="header-copy"><p class="section-label">Walter Johnson High School</p><h1>Find your club.</h1><p class="intro">Browse student-led communities, activities, and interests across WJ.</p></div><form class="search-form" id="club-search"><label class="visually-hidden" for="query">Search clubs</label><input id="query" name="q" class="form-control" type="search" placeholder="Search by club name or interest"><label class="visually-hidden" for="category">Sort by category</label><select class="form-select category-filter" id="category" name="category"><option value="">All categories</option><option>Academic</option><option>Arts</option><option>Charity/Activism</option><option>Competitive</option><option>Culture</option><option>Dance</option><option>Games/Sports</option><option>Interest</option><option>Music</option><option>STEM</option></select></form><p class="result-count">Showing ' . count($clubs) . ' of ' . count($clubs) . ' clubs</p></div></section><section class="clubs-section"><div class="container"><div class="row g-4">';
 foreach ($clubs as $club) {
     $image = '/static/' . ltrim($club['Image Path'] ?? 'images/unknown.png', '/');
-    echo '<div class="col-lg-4 col-md-6 club-item" data-club-item data-search-text="' . e($club['Club Name'] . ' ' . $club['Purpose'] . ' ' . $club['Social Media Handles (optional)']) . '" data-category="' . e($club['Select the category for your club']) . '"><article class="club-card h-100"><div class="club-image-wrap"><img src="' . e($image) . '" alt="' . e($club['Club Name']) . '" loading="lazy"></div><div class="club-card-body"><h2>' . e($club['Club Name']) . '</h2><p class="club-purpose">' . e($club['Purpose']) . '</p><dl class="club-details"><div class="schedule-row"><dd>Meets ' . e($club['Select all the days of the week that your club meets']) . ' ' . e($club['Club Meeting Frequency']) . ' during ' . e(csv_value($club, 'When does your club meet?')) . '</dd></div><div><dt>Sponsor</dt><dd>' . e($club['Sponsor email address']) . '</dd></div></dl>' . (!empty($club['Social Media Handles (optional)']) ? '<div class="social-link">' . social_markup($club['Social Media Handles (optional)']) . '</div>' : '') . '</div></article></div>';
+    echo '<div class="col-lg-4 col-md-6 club-item" data-club-item data-search-text="' . e($club['Club Name'] . ' ' . $club['Purpose'] . ' ' . $club['Social Media Handles (optional)']) . '" data-category="' . e($club['Select the category for your club']) . '"><article class="club-card h-100"><div class="club-image-wrap"><img src="' . e($image) . '" alt="' . e($club['Club Name']) . '" loading="lazy"></div><div class="club-card-body"><h2>' . e($club['Club Name']) . '</h2><p class="club-purpose">' . e($club['Purpose']) . '</p><dl class="club-details"><div class="schedule-row"><dd>Meets ' . e($club['Select all the days of the week that your club meets']) . ' ' . e($club['Club Meeting Frequency']) . ' during ' . e($club['When does your club meet?']) . '</dd></div><div><dt>Sponsor</dt><dd>' . e($club['Sponsor email address']) . '</dd></div></dl>' . (!empty($club['Social Media Handles (optional)']) ? '<div class="social-link">' . social_markup($club['Social Media Handles (optional)']) . '</div>' : '') . '</div></article></div>';
 }
 if (!$clubs) echo '<div class="col-12"><p class="empty-state">No clubs matched your search.</p></div>';
 echo '</div></div></section></main>';
