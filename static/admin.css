@@ -42,6 +42,16 @@ body {
     border-radius: 5px;
 }
 
+.login-error {
+    margin: 0 0 16px;
+    padding: 10px 12px;
+    border: 1px solid #d9534f;
+    border-radius: 5px;
+    background: #fdecea;
+    color: #b02a1f;
+    font-size: .9rem;
+}
+
 .admin-nav-actions {
     display: flex;
     gap: 20px;

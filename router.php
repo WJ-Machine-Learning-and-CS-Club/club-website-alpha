@@ -67,6 +67,8 @@ function social_markup($value) {
     if ($text === '' || preg_match('/^(none|na|n\/a|no|not yet|we haven)/i', $text)) {
         return '';
     }
+    // Strip leading platform labels with arrows, e.g. "(Instagram) --> @handle"
+    $text = preg_replace('/^\s*\(?(?:instagram|insta|ig|tiktok)\)?\s*(?:-->|->)\s*/i', '', $text);
     $platforms = [
         'instagram' => 'https://www.instagram.com/',
         'insta' => 'https://www.instagram.com/',
@@ -77,7 +79,20 @@ function social_markup($value) {
     ];
     $out = '';
     $offset = 0;
-    $pattern = '/(?:instagram\b|insta\b|ig\b|tiktok\b|discord\b|youtube\b)(?!\.com\b|\/)\s*:?\s*@?\s*([a-z0-9._]+)|(?<![a-z0-9.\/(])@([a-z0-9._]+)(?:\s*\(?(?:on\s+)?(?:instagram|insta|ig|tiktok)\)?)?|(?<![a-z0-9._])([a-z0-9._]*[._][a-z0-9._]*)\s+(?:on\s+)?\(?(?:instagram|insta|ig|tiktok)\)?\b/i';
+    // First pass: extract full URLs so platform words inside them aren't misparsed
+    $urls = [];
+    $url_pattern = '/(https?:\/\/[^\s]+)/i';
+    $url_offset = 0;
+    $url_text = '';
+    while (preg_match($url_pattern, $text, $um, PREG_OFFSET_CAPTURE, $url_offset)) {
+        $url_text .= substr($text, $url_offset, $um[0][1] - $url_offset);
+        $urls[] = $um[0][0];
+        $url_text .= "\x01" . (count($urls) - 1) . "\x01";
+        $url_offset = $um[0][1] + strlen($um[0][0]);
+    }
+    $url_text .= substr($text, $url_offset);
+    $text = $url_text;
+    $pattern = '/(?:instagram|insta|ig|tiktok|discord|youtube)\b(?!\.com\b|\/)\s*(?::\s*@?\s*|@\s*)([a-z0-9._]+)|(?<![a-z0-9.\/(])@([a-z0-9._]+)(?:\s*\(?(?:on\s+)?(?:instagram|insta|ig|tiktok)\)?)?|(?<![a-z0-9._])([a-z0-9._]*[._][a-z0-9._]*)(?!\/)(?:\s+(?:on\s+)?\(?(?:instagram|insta|ig|tiktok)\)?)?/i';
     while (preg_match($pattern, $text, $m, PREG_OFFSET_CAPTURE, $offset)) {
         $start = $m[0][1];
         $out .= e(substr($text, $offset, $start - $offset));
@@ -90,7 +105,17 @@ function social_markup($value) {
         $offset = $start + strlen($token);
     }
     $out .= e(substr($text, $offset));
-    return 'Social: ' . $out;
+    // Restore URLs as clickable links
+    $restored = '';
+    $restore_offset = 0;
+    while (preg_match('/\x01(\d+)\x01/', $out, $rm, PREG_OFFSET_CAPTURE, $restore_offset)) {
+        $restored .= substr($out, $restore_offset, $rm[0][1] - $restore_offset);
+        $u = $urls[(int) $rm[1][0]];
+        $restored .= '<a href="' . e($u) . '" target="_blank" rel="noopener">' . e($u) . '</a>';
+        $restore_offset = $rm[0][1] + strlen($rm[0][0]);
+    }
+    $restored .= substr($out, $restore_offset);
+    return 'Social: ' . $restored;
 }
 
 function start_page() {
@@ -102,13 +127,28 @@ function end_page() {
 }
 
 if ($path === '/login') {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        $username = trim($_POST['username'] ?? '');
+        $password = trim($_POST['password'] ?? '');
+        if ($username === $ADMIN_USERNAME && $password === $ADMIN_PASSWORD) {
+            $_SESSION['admin_logged_in'] = true;
+            header('Location: /admin');
+            http_response_code(302);
+            exit;
+        }
+        header('Location: /login?error=1');
+        http_response_code(302);
+        exit;
+    }
     start_page();
-    echo '<main class="login-page"><section class="outlined-box"><h1>Login</h1><form><label for="username">Username</label><input id="username"><label for="password">Password</label><input id="password" type="password"><button class="btn search-button mt-3" type="button" onclick="window.location.href=\'/admin\'">Sign in</button></form><a class="btn btn-secondary mt-3" href="/">Back to Clubs</a></section></main>';
+    $error = ($_GET['error'] ?? '') !== '' ? '<p class="login-error">Invalid username or password.</p>' : '';
+    echo '<main class="login-page"><section class="outlined-box"><h1>Login</h1>' . $error . '<form method="post" action="/login"><label for="username">Username</label><input id="username" name="username"><label for="password">Password</label><input id="password" name="password" type="password"><button class="btn search-button mt-3" type="submit">Sign in</button></form><a class="btn btn-secondary mt-3" href="/">Back to Clubs</a></section></main>';
     end_page();
     exit;
 }
 
 if ($path === '/admin') {
+    require_login();
     start_page();
     echo '<main class="admin-shell"><div class="admin-heading"><p class="section-label">Site management</p><h1>Admin dashboard</h1><p>Update club information, featured clubs, and local images.</p></div><div class="row g-4"><div class="col-lg-6"><section class="admin-card h-100"><p class="admin-card-label">Directory data</p><h2>Update all clubs</h2><p>Upload the CSV used for the main club directory.</p><form><input class="form-control" type="file" accept=".csv"><button class="btn admin-primary mt-3" type="button">Upload CSV</button></form></section></div><div class="col-lg-6"><section class="admin-card h-100"><p class="admin-card-label">Homepage feature data</p><h2>Update featured clubs</h2><p>Upload the CSV used for featured club content.</p><form><input class="form-control" type="file" accept=".csv"><button class="btn admin-primary mt-3" type="button">Upload CSV</button></form></section></div><div class="col-lg-6 delete-card-column"><section class="admin-card h-100"><p class="admin-card-label">Local assets</p><h2>Delete downloaded images</h2><p>Remove locally stored club images before downloading a fresh set.</p><div class="delete-form"><button class="btn btn-outline-danger mt-2" type="button">Delete images</button></div></section></div></div></main>';
     end_page();
